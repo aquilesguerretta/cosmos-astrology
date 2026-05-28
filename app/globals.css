@@ -237,3 +237,30 @@
   .animate-orbit { animation: orbit 60s linear infinite; }
   .animate-fade-up { animation: fade-up 0.6s ease-out both; }
 }
+
+@layer components {
+  /* Primary gold button — gradient + layered glow (from figma GoldButton) */
+  .btn-gold {
+    background: linear-gradient(135deg, #E8C97A 0%, #C9A84C 50%, #9A7A2E 100%);
+    color: #0A0A0F;
+    box-shadow:
+      0 0 0 1px rgba(232, 201, 122, 0.4),
+      0 8px 32px rgba(201, 168, 76, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  /* Hover shimmer sweep overlay for .btn-gold */
+  .btn-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Elevated glass shadow (GlassCard glow prop) */
+  .glass-glow {
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(201, 168, 76, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+}

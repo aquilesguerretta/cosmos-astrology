@@ -1,4 +1,6 @@
 import type { NatalInput } from "@/lib/astrology";
+import { AUTH_ENABLED, auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export interface CosmosUser {
   name: string;
@@ -19,10 +21,32 @@ export const DEMO_USER: CosmosUser = {
 };
 
 /**
- * Resolves the active user. Prompt 9 wires this to the NextAuth session +
- * Prisma; until a DB/session exists it returns the demo user so every
- * authenticated page stays navigable.
+ * Resolves the active user. With auth enabled, reads the NextAuth session +
+ * Prisma user; falls back to the demo user when auth is off or the user hasn't
+ * completed onboarding, so every dashboard page stays navigable.
  */
 export async function getCurrentUser(): Promise<CosmosUser> {
-  return DEMO_USER;
+  if (!AUTH_ENABLED) return DEMO_USER;
+  try {
+    const session = await auth();
+    const id = session?.user?.id;
+    if (!id) return DEMO_USER;
+    const u = await prisma.user.findUnique({ where: { id } });
+    if (!u || !u.birthDate || u.birthLat == null || u.birthLng == null) return DEMO_USER;
+    return {
+      name: u.name ?? "Seeker",
+      email: u.email,
+      initial: (u.name ?? "S").trim()[0]?.toUpperCase() ?? "S",
+      birth: {
+        date: u.birthDate.toISOString().slice(0, 10),
+        time: u.birthTime ?? "12:00",
+        lat: u.birthLat,
+        lng: u.birthLng,
+        utcOffset: u.utcOffset ?? undefined,
+      },
+      birthLocation: u.birthLocation ?? "",
+    };
+  } catch {
+    return DEMO_USER;
+  }
 }

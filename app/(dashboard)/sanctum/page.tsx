@@ -15,6 +15,8 @@ const ACTIONS = [
   { title: "Ask the Stars", caption: "A personal divination", href: "/reading", icon: Sparkles, accent: "✦" },
 ];
 
+export const metadata = { title: "Sanctum" };
+
 export default async function SanctumPage() {
   const user = await getCurrentUser();
   const natal = await calculateNatalChart(user.birth);

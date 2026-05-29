@@ -1,6 +1,8 @@
 import { getCurrentUser } from "@/lib/user";
 import { SynastryClient, type Person } from "@/components/synastry";
 
+export const metadata = { title: "Synastry" };
+
 export default async function SynastryPage() {
   const user = await getCurrentUser();
   const initialA: Person = {

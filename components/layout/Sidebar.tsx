@@ -39,7 +39,7 @@ export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[260px] shrink-0 flex-col border-r border-[var(--gold)]/10 bg-[linear-gradient(180deg,rgba(10,10,15,0.95)_0%,rgba(18,18,26,0.95)_100%)] backdrop-blur-md">
+    <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col border-r border-[var(--gold)]/10 bg-[linear-gradient(180deg,rgba(10,10,15,0.95)_0%,rgba(18,18,26,0.95)_100%)] backdrop-blur-md lg:flex">
       {/* Brand */}
       <Link href="/" className="block border-b border-[var(--gold)]/10 px-7 pb-6 pt-7 text-left">
         <div className="flex items-center gap-2.5">

@@ -2,6 +2,8 @@ import { calculateNatalChart } from "@/lib/astrology";
 import { getCurrentUser } from "@/lib/user";
 import { ReadingClient } from "@/components/reading";
 
+export const metadata = { title: "Daily Reading" };
+
 export default async function ReadingPage() {
   const user = await getCurrentUser();
   const chart = await calculateNatalChart(user.birth);

@@ -13,6 +13,8 @@ function formatBirth(date: string, time: string): string {
   return `${d} ${MONTHS[m - 1]} ${y} · ${time}`;
 }
 
+export const metadata = { title: "Natal Chart" };
+
 export default async function ChartPage() {
   const user = await getCurrentUser();
   const chart = await calculateNatalChart(user.birth);

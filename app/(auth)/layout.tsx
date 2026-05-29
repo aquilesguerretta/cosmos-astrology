@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { StarField } from "@/components/layout";
+
+export const metadata: Metadata = { title: "Sign in" };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,12 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import type { ChartData, Planet } from "@/lib/astrology";
 import { Card } from "@/components/ui";
-import { BirthChartWheel } from "./BirthChartWheel";
 import { PlanetTable } from "./PlanetTable";
-import { AspectGrid } from "./AspectGrid";
 import { ElementsBar } from "./ElementsBar";
+
+const BirthChartWheel = dynamic(() => import("./BirthChartWheel").then((m) => m.BirthChartWheel), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-square w-full max-w-[560px] animate-pulse rounded-full border border-[var(--gold)]/10 bg-white/[0.02]" />
+  ),
+});
+const AspectGrid = dynamic(() => import("./AspectGrid").then((m) => m.AspectGrid), {
+  ssr: false,
+  loading: () => <div className="h-48 animate-pulse bg-white/[0.02]" />,
+});
 
 /** Interactive composition: wheel + elements bar (left) and table + grid (right),
  *  with a synchronized planet highlight across wheel and table. */

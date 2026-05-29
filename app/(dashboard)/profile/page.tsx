@@ -25,6 +25,8 @@ const SIGN_BLURB: Record<ZodiacSign, string> = {
   pisces: "Dissolved boundaries — you feel the whole ocean, and make from it song and image.",
 };
 
+export const metadata = { title: "The Self" };
+
 export default async function ProfilePage() {
   const user = await getCurrentUser();
   const chart = await calculateNatalChart(user.birth);

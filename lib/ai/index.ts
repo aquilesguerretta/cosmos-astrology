@@ -1,2 +1,2 @@
-// TODO: Prompts 6-8 — Claude API integration (interpretations, horoscopes, ask-the-stars)
-export {};
+export { CLAUDE_MODEL, aiEnabled, streamCompletion, generateJSON } from "./claude";
+export * from "./prompts";

@@ -1,0 +1,73 @@
+"use client";
+
+import { useState } from "react";
+import { Sparkles, Send } from "lucide-react";
+
+export function AskTheStars({ context }: { context: string }) {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function ask(e: React.FormEvent) {
+    e.preventDefault();
+    const q = question.trim();
+    if (!q || loading) return;
+    setLoading(true);
+    setAnswer("");
+    try {
+      const res = await fetch("/api/ai/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q, context }),
+      });
+      if (!res.body) return;
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        setAnswer((t) => t + dec.decode(value, { stream: true }));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="mt-10">
+      <div className="mb-4 flex items-center gap-3">
+        <Sparkles size={14} className="text-[var(--gold)]" />
+        <p className="label-caps">Ask the Stars</p>
+      </div>
+      <form
+        onSubmit={ask}
+        className="flex items-center gap-3 border border-[var(--gold)]/15 bg-white/[0.025] px-5 py-4 transition focus-within:border-[var(--gold)]/50"
+      >
+        <input
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Should I take the meeting on Friday?"
+          className="flex-1 bg-transparent text-[15px] italic text-[var(--text-primary-color)] outline-none placeholder:text-[var(--text-muted-color)]"
+          style={{ fontFamily: "var(--font-display)" }}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="grid h-9 w-9 place-items-center bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold-dark)] text-[#0A0A0F] transition hover:opacity-90 disabled:opacity-50"
+          aria-label="Ask"
+        >
+          <Send size={14} />
+        </button>
+      </form>
+      {(answer || loading) && (
+        <p
+          className="animate-fade-up mt-5 leading-[1.8] text-[var(--text-secondary-color)]"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 300, fontSize: "17px" }}
+        >
+          {answer}
+          {loading && <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[var(--gold)]/60 align-middle" />}
+        </p>
+      )}
+    </section>
+  );
+}

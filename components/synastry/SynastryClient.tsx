@@ -11,11 +11,17 @@ import { PersonInput, type Person } from "./PersonInput";
 import { ResonanceRing } from "./ResonanceRing";
 import { SynastryAspects } from "./SynastryAspects";
 
+interface BigThree {
+  sun: ZodiacSign;
+  moon: ZodiacSign;
+  asc: ZodiacSign;
+}
+
 interface Result {
   score: number;
   aspects: SynastryAspect[];
-  a: { sun: ZodiacSign };
-  b: { sun: ZodiacSign };
+  a: BigThree;
+  b: BigThree;
 }
 
 const PERSONAL: Planet[] = ["sun", "moon", "mercury", "venus", "mars"];
@@ -141,12 +147,35 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
   return (
     <>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card className="p-7">
-          <PersonInput value={a} onChange={setA} glyph={result ? ZODIAC_BY_KEY[result.a.sun].glyph : "☉"} />
-        </Card>
-        <Card className="p-7">
-          <PersonInput value={b} onChange={setB} glyph={result ? ZODIAC_BY_KEY[result.b.sun].glyph : "☽"} />
-        </Card>
+        {([
+          { person: a, set: setA, three: result?.a, fallback: "☉" },
+          { person: b, set: setB, three: result?.b, fallback: "☽" },
+        ] as const).map((side, i) => (
+          <Card key={i} className="p-7">
+            <PersonInput
+              value={side.person}
+              onChange={side.set}
+              glyph={side.three ? ZODIAC_BY_KEY[side.three.sun].glyph : side.fallback}
+            />
+            {side.three && (
+              <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--gold)]/15 pt-4">
+                {([
+                  ["☉", side.three.sun],
+                  ["☽", side.three.moon],
+                  ["↑", side.three.asc],
+                ] as const).map(([glyph, sign]) => (
+                  <span
+                    key={glyph}
+                    className="border border-[var(--gold)]/20 px-2.5 py-1 text-[11px] tracking-wider text-[var(--text-secondary-color)]"
+                  >
+                    <span className="mr-1 text-[var(--gold-light)]">{glyph}</span>
+                    {dict.zodiac.names[sign]} {ZODIAC_BY_KEY[sign].glyph}
+                  </span>
+                ))}
+              </div>
+            )}
+          </Card>
+        ))}
       </div>
 
       <div className="mt-8 flex justify-center">

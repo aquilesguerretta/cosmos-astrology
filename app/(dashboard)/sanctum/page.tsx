@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Compass, BookOpen, Users, Sparkles, Search, Bell, ArrowRight, AlertTriangle } from "lucide-react";
+import { Compass, BookOpen, Layers, Users, Library, GraduationCap, Search, Bell, ArrowRight, AlertTriangle } from "lucide-react";
 import { getCurrentUser } from "@/lib/user";
 import { calculateNatalChart } from "@/lib/astrology";
 import { moonPhase, activeTransits } from "@/lib/transits";
@@ -40,8 +40,10 @@ export default async function SanctumPage() {
   const ACTIONS = [
     { title: t.actionChartT, caption: t.actionChartC, href: "/chart", icon: Compass, accent: "☉" },
     { title: t.actionReadingT, caption: t.actionReadingC, href: "/reading", icon: BookOpen, accent: "♈" },
+    { title: dict.nav.tarot, caption: t.actionTarotC, href: "/tarot", icon: Layers, accent: "✦" },
     { title: t.actionSynastryT, caption: t.actionSynastryC, href: "/synastry", icon: Users, accent: "♀" },
-    { title: t.actionAskT, caption: t.actionAskC, href: "/reading", icon: Sparkles, accent: "✦" },
+    { title: dict.nav.library, caption: t.actionLibraryC, href: "/library", icon: Library, accent: "☽" },
+    { title: dict.nav.learn, caption: t.actionLearnC, href: "/learn", icon: GraduationCap, accent: "♄" },
   ];
 
   return (
@@ -99,7 +101,7 @@ export default async function SanctumPage() {
       </div>
 
       {/* Action cards */}
-      <div className="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {ACTIONS.map((c) => {
           const Icon = c.icon;
           return (

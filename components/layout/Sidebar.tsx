@@ -6,7 +6,10 @@ import {
   LayoutGrid,
   Compass,
   BookOpen,
+  Layers,
   Users,
+  Library,
+  GraduationCap,
   Settings,
   Crown,
   LogOut,
@@ -37,7 +40,10 @@ export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
     { href: "/sanctum", label: dict.nav.sanctum, icon: LayoutGrid },
     { href: "/chart", label: dict.nav.natalChart, icon: Compass },
     { href: "/reading", label: dict.nav.dailyReading, icon: BookOpen },
+    { href: "/tarot", label: dict.nav.tarot, icon: Layers },
     { href: "/synastry", label: dict.nav.synastry, icon: Users },
+    { href: "/library", label: dict.nav.library, icon: Library },
+    { href: "/learn", label: dict.nav.learn, icon: GraduationCap },
     { href: "/profile", label: dict.nav.theSelf, icon: Settings },
   ];
 

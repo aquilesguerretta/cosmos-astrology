@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Compass, BookOpen, Users, Settings } from "lucide-react";
+import { LayoutGrid, Compass, BookOpen, Layers, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
@@ -13,8 +13,8 @@ export function BottomNav() {
   const NAV = [
     { href: "/sanctum", label: dict.nav.sanctum, icon: LayoutGrid },
     { href: "/chart", label: dict.nav.chartShort, icon: Compass },
+    { href: "/tarot", label: dict.nav.tarotShort, icon: Layers },
     { href: "/reading", label: dict.nav.readingShort, icon: BookOpen },
-    { href: "/synastry", label: dict.nav.synastryShort, icon: Users },
     { href: "/profile", label: dict.nav.selfShort, icon: Settings },
   ];
 

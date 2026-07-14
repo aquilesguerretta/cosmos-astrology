@@ -37,7 +37,7 @@ export default async function LandingPage() {
       {/* ─────────── HERO ─────────── */}
       <section className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0 opacity-50 md:opacity-100">
-          <StarField density={180} />
+          <StarField density={180} interactive />
         </div>
 
         <div className="relative z-10">

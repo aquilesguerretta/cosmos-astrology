@@ -21,5 +21,14 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/sanctum/:path*", "/chart/:path*", "/reading/:path*", "/synastry/:path*", "/profile/:path*"],
+  matcher: [
+    "/sanctum/:path*",
+    "/chart/:path*",
+    "/reading/:path*",
+    "/tarot/:path*",
+    "/synastry/:path*",
+    "/library/:path*",
+    "/learn/:path*",
+    "/profile/:path*",
+  ],
 };

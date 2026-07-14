@@ -1,12 +1,15 @@
-import { calculateNatalChart, type ChartData, type NatalInput, type Planet } from "@/lib/astrology";
+import { calculateNatalChart, signOf, type ChartData, type NatalInput, type Planet } from "@/lib/astrology";
 import { calculateSynastry } from "@/lib/astrology/synastry";
 
 const INNER: Planet[] = ["sun", "moon", "mercury", "venus", "mars"];
 
 function summarize(c: ChartData) {
   const sun = c.planets.find((p) => p.planet === "sun")!;
+  const moon = c.planets.find((p) => p.planet === "moon")!;
   return {
     sun: sun.sign,
+    moon: moon.sign,
+    asc: signOf(c.angles.asc),
     inner: INNER.map((k) => {
       const p = c.planets.find((x) => x.planet === k)!;
       return { planet: k, sign: p.sign };

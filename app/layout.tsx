@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { getDict } from "@/lib/i18n";
+import { I18nProvider } from "@/components/i18n/I18nProvider";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -25,6 +27,8 @@ export const metadata: Metadata = {
   },
   description:
     "Premium astrology platform. Birth charts, daily horoscopes, and AI interpretations.",
+  applicationName: "Cosmos",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Cosmos" },
   openGraph: {
     title: "Cosmos — Your Cosmic Blueprint",
     description:
@@ -34,12 +38,24 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export default function RootLayout({
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0A0A0F",
+};
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { locale, dict } = await getDict();
+
   return (
-    <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
-      <body>{children}</body>
+    <html lang={locale === "pt" ? "pt-BR" : "en"} className={`${cormorant.variable} ${dmSans.variable}`}>
+      <body>
+        <I18nProvider locale={locale} dict={dict}>
+          {children}
+        </I18nProvider>
+      </body>
     </html>
   );
 }

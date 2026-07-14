@@ -1,19 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
-
-const ITEMS = [
-  { key: "daily", t: "Morning horoscope", d: "Delivered at 07:00 each day, with the Sun's first light." },
-  { key: "weekly", t: "Sunday almanac", d: "A longer reading for the week ahead, by your Moon sign." },
-  { key: "transit", t: "Major transits & ingresses", d: "When a slow planet enters a new sign or aspects your chart." },
-] as const;
-
-const CHANNELS = [
-  { k: "email", l: "Email" },
-  { k: "push", l: "Push" },
-  { k: "sms", l: "SMS · soon" },
-] as const;
 
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -31,6 +20,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
 }
 
 export function NotificationToggles() {
+  const { dict } = useI18n();
   const [notif, setNotif] = useState<Record<string, boolean>>({
     daily: true,
     weekly: true,
@@ -38,6 +28,18 @@ export function NotificationToggles() {
     email: true,
     push: false,
   });
+
+  const ITEMS = [
+    { key: "daily", t: dict.profile.notifDailyT, d: dict.profile.notifDailyD },
+    { key: "weekly", t: dict.profile.notifWeeklyT, d: dict.profile.notifWeeklyD },
+    { key: "transit", t: dict.profile.notifTransitT, d: dict.profile.notifTransitD },
+  ];
+
+  const CHANNELS = [
+    { k: "email", l: dict.profile.chEmail },
+    { k: "push", l: dict.profile.chPush },
+    { k: "sms", l: dict.profile.chSms },
+  ];
 
   return (
     <div>
@@ -52,7 +54,7 @@ export function NotificationToggles() {
           </div>
         ))}
       </div>
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         {CHANNELS.map((m, i) => (
           <button
             key={m.k}

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { Aspect, ChartData, Planet } from "@/lib/astrology";
-import { PLANET_GLYPHS, PLANET_NAMES } from "@/components/ui";
+import { PLANET_GLYPHS } from "@/components/ui";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { ASPECT_META } from "./aspectMeta";
 
 const GRID_PLANETS: Planet[] = [
@@ -17,6 +18,7 @@ interface AspectGridProps {
 }
 
 export function AspectGrid({ chartData }: AspectGridProps) {
+  const { dict } = useI18n();
   const [hover, setHover] = useState<Aspect | null>(null);
 
   const lookup = useMemo(() => {
@@ -26,7 +28,7 @@ export function AspectGrid({ chartData }: AspectGridProps) {
   }, [chartData]);
 
   return (
-    <div>
+    <div className="overflow-x-auto">
       <table className="border-collapse">
         <tbody>
           {GRID_PLANETS.map((row, i) => (
@@ -42,15 +44,18 @@ export function AspectGrid({ chartData }: AspectGridProps) {
                     onMouseLeave={() => setHover(null)}
                     style={{ cursor: asp ? "pointer" : "default" }}
                   >
-                    {meta && (
-                      <span className="text-sm" style={{ color: meta.color }} title={`${meta.label} · orb ${asp!.orb}°`}>
+                    {meta && asp && (
+                      <span
+                        className="text-sm"
+                        style={{ color: meta.color }}
+                        title={`${dict.aspects[asp.type]} · ${dict.common.orb} ${asp.orb}°`}
+                      >
                         {meta.symbol}
                       </span>
                     )}
                   </td>
                 );
               })}
-              {/* diagonal planet label */}
               <td className="h-7 w-7 border border-[var(--gold)]/10 text-center align-middle">
                 <span className="font-display text-base text-[var(--gold-light)]">{PLANET_GLYPHS[row]}</span>
               </td>
@@ -62,15 +67,18 @@ export function AspectGrid({ chartData }: AspectGridProps) {
       <div className="mt-3 h-5 text-xs text-[var(--text-secondary-color)]">
         {hover ? (
           <span>
-            <span className="text-[var(--gold-light)]">{PLANET_NAMES[hover.planet1]}</span>
-            <span className="mx-1.5" style={{ color: ASPECT_META[hover.type].color }}>{ASPECT_META[hover.type].symbol}</span>
-            <span className="text-[var(--gold-light)]">{PLANET_NAMES[hover.planet2]}</span>
+            <span className="text-[var(--gold-light)]">{dict.planets[hover.planet1]}</span>
+            <span className="mx-1.5" style={{ color: ASPECT_META[hover.type].color }}>
+              {ASPECT_META[hover.type].symbol}
+            </span>
+            <span className="text-[var(--gold-light)]">{dict.planets[hover.planet2]}</span>
             <span className="ml-2 text-[var(--text-muted-color)]">
-              {ASPECT_META[hover.type].label} · orb {hover.orb}° · {hover.isApplying ? "applying" : "separating"}
+              {dict.aspects[hover.type]} · {dict.common.orb} {hover.orb}° ·{" "}
+              {hover.isApplying ? dict.common.applying : dict.common.separating}
             </span>
           </span>
         ) : (
-          <span className="text-[var(--text-muted-color)]">Hover an aspect for details</span>
+          <span className="text-[var(--text-muted-color)]">{dict.chart.hoverAspect}</span>
         )}
       </div>
     </div>

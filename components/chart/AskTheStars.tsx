@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Sparkles, Send } from "lucide-react";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export function AskTheStars({ context }: { context: string }) {
+  const { dict } = useI18n();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,7 @@ export function AskTheStars({ context }: { context: string }) {
     <section className="mt-10">
       <div className="mb-4 flex items-center gap-3">
         <Sparkles size={14} className="text-[var(--gold)]" />
-        <p className="label-caps">Ask the Stars</p>
+        <p className="label-caps">{dict.chart.askTitle}</p>
       </div>
       <form
         onSubmit={ask}
@@ -46,7 +48,7 @@ export function AskTheStars({ context }: { context: string }) {
         <input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Should I take the meeting on Friday?"
+          placeholder={dict.chart.askPlaceholder}
           className="flex-1 bg-transparent text-[15px] italic text-[var(--text-primary-color)] outline-none placeholder:text-[var(--text-muted-color)]"
           style={{ fontFamily: "var(--font-display)" }}
         />
@@ -54,7 +56,7 @@ export function AskTheStars({ context }: { context: string }) {
           type="submit"
           disabled={loading}
           className="grid h-9 w-9 place-items-center bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold-dark)] text-[#0A0A0F] transition hover:opacity-90 disabled:opacity-50"
-          aria-label="Ask"
+          aria-label={dict.chart.askTitle}
         >
           <Send size={14} />
         </button>

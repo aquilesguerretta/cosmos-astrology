@@ -3,22 +3,15 @@ import { Compass, BookOpen, Users, Sparkles, Search, Bell, ArrowRight, AlertTria
 import { getCurrentUser } from "@/lib/user";
 import { calculateNatalChart } from "@/lib/astrology";
 import { moonPhase, activeTransits } from "@/lib/transits";
-import { Card, ZODIAC_BY_KEY } from "@/components/ui";
-import { Greeting, MoonPhase, PlanetStrip, ActiveTransits } from "@/components/dashboard";
-
-export const revalidate = 3600; // refresh transits hourly
-
-const ACTIONS = [
-  { title: "My Natal Chart", caption: "Your full birth map", href: "/chart", icon: Compass, accent: "☉" },
-  { title: "Daily Horoscope", caption: "Today's reading for your sign", href: "/reading", icon: BookOpen, accent: "♈" },
-  { title: "Compatibility", caption: "Synastry with another", href: "/synastry", icon: Users, accent: "♀" },
-  { title: "Ask the Stars", caption: "A personal divination", href: "/reading", icon: Sparkles, accent: "✦" },
-];
+import { getDict, intlTag } from "@/lib/i18n";
+import { Card } from "@/components/ui";
+import { Greeting, MoonPhase, MoonPhaseDescription, PlanetStrip, ActiveTransits } from "@/components/dashboard";
 
 export const metadata = { title: "Sanctum" };
 
 export default async function SanctumPage() {
-  const user = await getCurrentUser();
+  const [{ locale, dict }, user] = await Promise.all([getDict(), getCurrentUser()]);
+  const t = dict.sanctum;
   const natal = await calculateNatalChart(user.birth);
 
   const now = new Date();
@@ -31,11 +24,25 @@ export default async function SanctumPage() {
   const phase = moonPhase(tSun.longitude, tMoon.longitude);
   const transits = activeTransits(natal, transit);
 
-  const dateLabel = now.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const dateLabel = now.toLocaleDateString(intlTag(locale), {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const moonName = dict.moon[phase.phaseKey];
   const overview =
-    `The Moon moves through ${ZODIAC_BY_KEY[tMoon.sign].name} (${phase.name}) while the Sun lights ` +
-    `${ZODIAC_BY_KEY[tSun.sign].name}. Mercury is ${tMerc.isRetrograde ? "retrograde" : "direct"} in ` +
-    `${ZODIAC_BY_KEY[tMerc.sign].name} — ${tMerc.isRetrograde ? "revisit and review before you commit." : "a clear channel for plans and words."}`;
+    `${t.overviewMoon} ${dict.zodiac.names[tMoon.sign]} (${moonName}) ${t.overviewSun} ` +
+    `${dict.zodiac.names[tSun.sign]}. ${t.overviewMercury} ${tMerc.isRetrograde ? dict.common.retrograde : dict.common.direct} ` +
+    `${t.overviewIn} ${dict.zodiac.names[tMerc.sign]} — ${tMerc.isRetrograde ? t.adviceRx : t.adviceDirect}`;
+
+  const ACTIONS = [
+    { title: t.actionChartT, caption: t.actionChartC, href: "/chart", icon: Compass, accent: "☉" },
+    { title: t.actionReadingT, caption: t.actionReadingC, href: "/reading", icon: BookOpen, accent: "♈" },
+    { title: t.actionSynastryT, caption: t.actionSynastryC, href: "/synastry", icon: Users, accent: "♀" },
+    { title: t.actionAskT, caption: t.actionAskC, href: "/reading", icon: Sparkles, accent: "✦" },
+  ];
 
   return (
     <div className="w-full max-w-[1280px] px-6 py-10 md:px-10">
@@ -60,11 +67,11 @@ export default async function SanctumPage() {
       <div className="relative mb-10 overflow-hidden border border-[var(--gold)]/25 bg-[linear-gradient(135deg,#1E3A5F_0%,#2D1B69_50%,#0A0A0F_100%)] p-8 shadow-[0_24px_80px_rgba(45,27,105,0.4)] md:p-10">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <div className="flex items-center gap-3">
-              <p className="label-caps text-[var(--gold-light)]">Today&apos;s Cosmic Overview</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="label-caps text-[var(--gold-light)]">{t.overviewLabel}</p>
               {tMerc.isRetrograde && (
                 <span className="inline-flex items-center gap-1 border border-[var(--warning)]/50 px-2 py-0.5 text-[10px] uppercase tracking-widest text-[var(--warning)]">
-                  <AlertTriangle size={10} /> Mercury Retrograde
+                  <AlertTriangle size={10} /> {t.mercuryRx}
                 </span>
               )}
             </div>
@@ -73,7 +80,7 @@ export default async function SanctumPage() {
             </p>
             <Link href="/reading" className="btn-gold group relative mt-7 inline-flex items-center gap-2 overflow-hidden px-7 py-3 font-sans text-[0.8rem] uppercase tracking-[0.08em]">
               <span className="btn-shimmer absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-              <span className="relative flex items-center gap-2">Full reading <ArrowRight size={14} /></span>
+              <span className="relative flex items-center gap-2">{t.fullReading} <ArrowRight size={14} /></span>
             </Link>
           </div>
           <div className="flex items-center lg:justify-end">
@@ -84,9 +91,9 @@ export default async function SanctumPage() {
 
       {/* Planetary positions */}
       <div className="mb-10">
-        <div className="mb-4 flex items-end justify-between">
-          <h3 className="font-display text-2xl text-[var(--text-primary-color)]">Planetary positions, this moment</h3>
-          <p className="label-caps">{dateLabel}</p>
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <h3 className="font-display text-2xl text-[var(--text-primary-color)]">{t.positionsTitle}</h3>
+          <p className="label-caps hidden sm:block">{dateLabel}</p>
         </div>
         <PlanetStrip planets={transit.planets} />
       </div>
@@ -107,7 +114,7 @@ export default async function SanctumPage() {
                 <p className="font-display text-2xl text-[var(--text-primary-color)]">{c.title}</p>
                 <p className="mt-2 text-xs tracking-wide text-[var(--text-secondary-color)]">{c.caption}</p>
                 <div className="label-caps mt-6 flex items-center gap-2 text-[var(--gold-light)]">
-                  Enter <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                  {dict.common.enter} <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
                 </div>
               </Card>
             </Link>
@@ -118,13 +125,13 @@ export default async function SanctumPage() {
       {/* Transits + moon */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
         <Card className="p-7">
-          <p className="label-caps mb-5">Active transits</p>
+          <p className="label-caps mb-5">{t.transitsLabel}</p>
           <ActiveTransits transits={transits} />
         </Card>
         <Card className="p-7">
-          <p className="label-caps mb-5">The Moon tonight</p>
+          <p className="label-caps mb-5">{t.moonLabel}</p>
           <MoonPhase info={phase} size={72} />
-          <p className="mt-4 text-sm leading-relaxed text-[var(--text-secondary-color)]">{phase.description}</p>
+          <MoonPhaseDescription info={phase} />
         </Card>
       </div>
     </div>

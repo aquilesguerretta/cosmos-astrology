@@ -1,22 +1,8 @@
 "use client";
 
 import { ZODIAC, ZodiacIcon, type ZodiacSign } from "@/components/ui";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
-
-const PREVIEWS: Record<ZodiacSign, string> = {
-  aries: "A door that resisted yields. Lean once more.",
-  taurus: "Return to what you already know is true.",
-  gemini: "Two messages, one of them worth keeping.",
-  cancer: "The home you tend is tending you back.",
-  leo: "Be photographed; let the light find you.",
-  virgo: "Permit a small disorder; something will bloom.",
-  libra: "An old equation rebalances of its own accord.",
-  scorpio: "Speak the unspoken — quietly, but speak it.",
-  sagittarius: "Buy the ticket; the journey already began.",
-  capricorn: "The plinth is set. Place the stone.",
-  aquarius: "A stranger's question is the one you needed.",
-  pisces: "Trust the mood; it is older than the day.",
-};
 
 interface ZodiacGridProps {
   selected: ZodiacSign;
@@ -25,6 +11,7 @@ interface ZodiacGridProps {
 }
 
 export function ZodiacGrid({ selected, userSign, onSelect }: ZodiacGridProps) {
+  const { dict } = useI18n();
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
       {ZODIAC.map((z) => {
@@ -57,18 +44,20 @@ export function ZodiacGrid({ selected, userSign, onSelect }: ZodiacGridProps) {
                 size={30}
                 className={isSelected ? "text-[var(--gold)]" : "text-[var(--gold-light)]/80 group-hover:text-[var(--gold)]"}
               />
-              <span className="text-[9px] uppercase tracking-[0.18em] text-[var(--text-muted-color)]">{z.element}</span>
+              <span className="text-[9px] uppercase tracking-[0.18em] text-[var(--text-muted-color)]">
+                {dict.elements[z.element.toLowerCase() as keyof typeof dict.elements]}
+              </span>
             </div>
             <p className="font-display text-lg text-[var(--text-primary-color)]">
-              {z.name}
+              {dict.zodiac.names[z.key]}
               {isUser && <span className="ml-1.5 text-[10px] text-[var(--gold)]">✦</span>}
             </p>
-            <p className="mt-0.5 text-[11px] text-[var(--text-muted-color)]">{z.dates}</p>
+            <p className="mt-0.5 text-[11px] text-[var(--text-muted-color)]">{dict.zodiac.dates[z.key]}</p>
             <p
               className="mt-3 text-[12px] italic leading-snug text-[var(--text-secondary-color)]"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              {PREVIEWS[z.key]}
+              {dict.zodiac.previews[z.key]}
             </p>
           </button>
         );

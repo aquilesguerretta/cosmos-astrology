@@ -1,37 +1,9 @@
 import { Check, Sparkles, Compass, BookOpen, Users } from "lucide-react";
 import { Navbar, StarField } from "@/components/layout";
 import { Card, ZodiacIcon, ZODIAC } from "@/components/ui";
+import { getDict } from "@/lib/i18n";
 import { NatalForm } from "./_components/NatalForm";
 import { ZodiacWheelMark } from "./_components/ZodiacWheelMark";
-
-const FEATURES = [
-  {
-    icon: Compass,
-    title: "Swiss-Precision Charts",
-    body: "Natal, transit and synastry maps drawn to the arcminute — the same engine the masters trust.",
-  },
-  {
-    icon: BookOpen,
-    title: "Daily Celestial Readings",
-    body: "Twelve voices, one sky. A reading each morning, cast for your sign and the day's transits.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI Interpretations",
-    body: "A constellation-trained intelligence reads the lines of your chart in plain, luminous language.",
-  },
-  {
-    icon: Users,
-    title: "Synastry & Resonance",
-    body: "See how two charts speak when the planets are placed beside each other — love, work, kinship.",
-  },
-];
-
-const FOOTER_COLS = [
-  { title: "Explore", links: ["Natal Chart", "Daily Reading", "Synastry", "The Sanctum"] },
-  { title: "Atelier", links: ["Practitioners", "Almanac", "Membership", "Journal"] },
-  { title: "Cosmos", links: ["About", "Privacy", "Terms", "Contact"] },
-];
 
 function Divider({ className = "" }: { className?: string }) {
   return (
@@ -43,12 +15,27 @@ function Divider({ className = "" }: { className?: string }) {
   );
 }
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { dict } = await getDict();
+  const t = dict.landing;
+
+  const FEATURES = [
+    { icon: Compass, title: t.feature1t, body: t.feature1b },
+    { icon: BookOpen, title: t.feature2t, body: t.feature2b },
+    { icon: Sparkles, title: t.feature3t, body: t.feature3b },
+    { icon: Users, title: t.feature4t, body: t.feature4b },
+  ];
+
+  const FOOTER_COLS = [
+    { title: t.colExplore, links: [dict.nav.natalChart, dict.nav.dailyReading, dict.nav.synastry, dict.nav.sanctum] },
+    { title: t.colAtelier, links: [dict.nav.practitioners, dict.nav.almanac, dict.nav.membership, t.linkJournal] },
+    { title: t.colCosmos, links: [t.linkAbout, t.linkPrivacy, t.linkTerms, t.linkContact] },
+  ];
+
   return (
     <div className="relative overflow-hidden">
       {/* ─────────── HERO ─────────── */}
       <section className="relative min-h-screen overflow-hidden">
-        {/* star field — more subtle on mobile */}
         <div className="absolute inset-0 opacity-50 md:opacity-100">
           <StarField density={180} />
         </div>
@@ -61,26 +48,20 @@ export default function LandingPage() {
             <div className="animate-fade-up">
               <div className="mb-8 flex items-center gap-3">
                 <span className="h-px w-12 bg-[var(--gold)]/60" />
-                <span className="label-caps text-[var(--gold-light)]">
-                  Vol. XIV · Equinox Edition
-                </span>
+                <span className="label-caps text-[var(--gold-light)]">{t.volume}</span>
               </div>
 
-              <h1 className="font-display text-[clamp(3.5rem,7vw,6.5rem)] leading-[0.95] tracking-[-0.02em] text-[var(--text-primary-color)]">
-                Your{" "}
-                <em className="font-italic-display font-light text-[var(--gold-light)]">
-                  cosmic
-                </em>
+              <h1 className="font-display text-[clamp(3.2rem,7vw,6.5rem)] leading-[0.95] tracking-[-0.02em] text-[var(--text-primary-color)]">
+                {t.heroYour}{" "}
+                <em className="font-italic-display font-light text-[var(--gold-light)]">{t.heroCosmic}</em>
                 <br />
-                blueprint
+                {t.heroBlueprint}
                 <br />
-                <span className="gold-text">awaits.</span>
+                <span className="gold-text">{t.heroAwaits}</span>
               </h1>
 
               <p className="mt-8 max-w-md text-[17px] leading-relaxed text-[var(--text-secondary-color)]">
-                Precision astrology drawn from two millennia of celestial observation —
-                interpreted by master practitioners and a constellation-trained
-                intelligence.
+                {t.heroSub}
               </p>
 
               <NatalForm />
@@ -88,18 +69,18 @@ export default function LandingPage() {
               {/* trust marks */}
               <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-[11px] uppercase tracking-[0.2em] text-[var(--text-muted-color)]">
                 <span className="flex items-center gap-2">
-                  <Check size={12} className="text-[var(--gold)]" /> Swiss Ephemeris
+                  <Check size={12} className="text-[var(--gold)]" /> {t.trust1}
                 </span>
                 <span className="flex items-center gap-2">
-                  <Check size={12} className="text-[var(--gold)]" /> Whole-sign & Placidus
+                  <Check size={12} className="text-[var(--gold)]" /> {t.trust2}
                 </span>
                 <span className="flex items-center gap-2">
-                  <Check size={12} className="text-[var(--gold)]" /> 1.6M readings
+                  <Check size={12} className="text-[var(--gold)]" /> {t.trust3}
                 </span>
               </div>
             </div>
 
-            {/* Right — decorative wheel (hidden on small screens) */}
+            {/* Right — decorative wheel */}
             <div className="animate-float-slow relative hidden lg:block">
               <ZodiacWheelMark />
             </div>
@@ -111,10 +92,8 @@ export default function LandingPage() {
       <section className="relative z-10 mx-auto max-w-[1440px] px-6 py-20 md:px-12">
         <Divider className="mb-12" />
         <div className="mb-10 text-center">
-          <p className="label-caps text-[var(--gold)]/80">What the Sanctum holds</p>
-          <h2 className="font-display mt-3 text-4xl text-[var(--text-primary-color)]">
-            An observatory for the self
-          </h2>
+          <p className="label-caps text-[var(--gold)]/80">{t.featuresLabel}</p>
+          <h2 className="font-display mt-3 text-4xl text-[var(--text-primary-color)]">{t.featuresTitle}</h2>
         </div>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => {
@@ -124,12 +103,8 @@ export default function LandingPage() {
                 <div className="mb-6 grid h-10 w-10 place-items-center border border-[var(--gold)]/30 text-[var(--gold)]">
                   <Icon size={16} strokeWidth={1.4} />
                 </div>
-                <h3 className="font-display text-2xl text-[var(--text-primary-color)]">
-                  {f.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary-color)]">
-                  {f.body}
-                </p>
+                <h3 className="font-display text-2xl text-[var(--text-primary-color)]">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary-color)]">{f.body}</p>
               </Card>
             );
           })}
@@ -138,7 +113,7 @@ export default function LandingPage() {
 
       {/* ─────────── ZODIAC STRIP ─────────── */}
       <section className="relative z-10 mx-auto max-w-[1440px] px-6 py-12 md:px-12">
-        <p className="label-caps mb-6 text-center text-[var(--gold)]/80">The Twelve</p>
+        <p className="label-caps mb-6 text-center text-[var(--gold)]/80">{t.theTwelve}</p>
         <div className="flex gap-3 overflow-x-auto pb-3 md:grid md:grid-cols-6 md:overflow-visible lg:grid-cols-12">
           {ZODIAC.map((z) => (
             <div
@@ -151,10 +126,10 @@ export default function LandingPage() {
                 className="text-[var(--gold-light)]/80 transition group-hover:text-[var(--gold)]"
               />
               <span className="font-display text-base text-[var(--text-primary-color)]">
-                {z.name}
+                {dict.zodiac.names[z.key]}
               </span>
               <span className="text-[9px] uppercase tracking-[0.18em] text-[var(--text-muted-color)]">
-                {z.element}
+                {dict.elements[z.element.toLowerCase() as keyof typeof dict.elements]}
               </span>
             </div>
           ))}
@@ -175,7 +150,7 @@ export default function LandingPage() {
                 <span className="font-display gold-text text-xl">Cosmos</span>
               </div>
               <p className="mt-3 max-w-[220px] text-xs leading-relaxed text-[var(--text-muted-color)]">
-                Precision astrology for the modern seeker. Est · MMXXVI.
+                {t.footerTagline}
               </p>
             </div>
 

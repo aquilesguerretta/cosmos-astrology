@@ -4,19 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutGrid, Compass, BookOpen, Users, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const NAV = [
-  { href: "/sanctum", label: "Sanctum", icon: LayoutGrid },
-  { href: "/chart", label: "Chart", icon: Compass },
-  { href: "/reading", label: "Reading", icon: BookOpen },
-  { href: "/synastry", label: "Synastry", icon: Users },
-  { href: "/profile", label: "Self", icon: Settings },
-] as const;
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { dict } = useI18n();
+
+  const NAV = [
+    { href: "/sanctum", label: dict.nav.sanctum, icon: LayoutGrid },
+    { href: "/chart", label: dict.nav.chartShort, icon: Compass },
+    { href: "/reading", label: dict.nav.readingShort, icon: BookOpen },
+    { href: "/synastry", label: dict.nav.synastryShort, icon: Users },
+    { href: "/profile", label: dict.nav.selfShort, icon: Settings },
+  ];
+
   return (
-    <nav className="glass-strong fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t border-[var(--gold)]/15 lg:hidden">
+    <nav className="glass-strong fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t border-[var(--gold)]/15 pb-[env(safe-area-inset-bottom)] lg:hidden">
       {NAV.map((n) => {
         const Icon = n.icon;
         const active = pathname === n.href || pathname.startsWith(`${n.href}/`);

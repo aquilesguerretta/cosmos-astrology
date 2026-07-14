@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import type { ChartData, Planet } from "@/lib/astrology";
 import { Card } from "@/components/ui";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { PlanetTable } from "./PlanetTable";
 import { ElementsBar } from "./ElementsBar";
 
@@ -21,32 +22,33 @@ const AspectGrid = dynamic(() => import("./AspectGrid").then((m) => m.AspectGrid
 /** Interactive composition: wheel + elements bar (left) and table + grid (right),
  *  with a synchronized planet highlight across wheel and table. */
 export function ChartView({ chartData }: { chartData: ChartData }) {
+  const { dict } = useI18n();
   const [active, setActive] = useState<Planet | null>(null);
 
   return (
     <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.3fr_1fr]">
       <div className="space-y-6">
-        <Card className="grid place-items-center p-6">
+        <Card className="grid place-items-center p-4 sm:p-6">
           <BirthChartWheel chartData={chartData} highlightedPlanet={active} onPlanetHover={setActive} />
           <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted-color)]">
-            <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#4A90D9]" /> Trine / Sextile</span>
-            <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#E85C4C]" /> Square / Opp.</span>
-            <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#C9A84C]" /> Conjunction</span>
+            <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#4A90D9]" /> {dict.chart.legendSoft}</span>
+            <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#E85C4C]" /> {dict.chart.legendHard}</span>
+            <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#C9A84C]" /> {dict.chart.legendConj}</span>
           </div>
         </Card>
         <Card className="p-6">
-          <p className="label-caps mb-5">Elements & Modalities</p>
+          <p className="label-caps mb-5">{dict.chart.elementsModalities}</p>
           <ElementsBar elements={chartData.elements} modalities={chartData.modalities} />
         </Card>
       </div>
 
       <div className="space-y-6">
         <Card className="p-6">
-          <p className="label-caps mb-4">Placements · Placidus · Tropical</p>
+          <p className="label-caps mb-4">{dict.chart.placements}</p>
           <PlanetTable chartData={chartData} highlightedPlanet={active} onPlanetHover={setActive} />
         </Card>
         <Card className="p-6">
-          <p className="label-caps mb-4">Aspect Matrix</p>
+          <p className="label-caps mb-4">{dict.chart.aspectMatrix}</p>
           <AspectGrid chartData={chartData} />
         </Card>
       </div>

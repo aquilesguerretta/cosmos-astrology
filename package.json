@@ -9,6 +9,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "verify:chart": "tsx scripts/verify-chart.ts",
+    "test:engine": "tsx scripts/test-engine.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

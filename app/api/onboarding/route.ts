@@ -1,14 +1,18 @@
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { auth, AUTH_ENABLED } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateNatalChart, signOf } from "@/lib/astrology";
+import { NATAL_COOKIE } from "@/lib/natal-cookie";
+import { isValidTimeZone } from "@/lib/timezone";
 
 const Schema = z.object({
   name: z.string().optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   time: z.string().regex(/^\d{2}:\d{2}$/),
-  lat: z.number(),
-  lng: z.number(),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  timeZone: z.string().max(64).optional(),
   utcOffset: z.number().optional(),
   location: z.string().optional(),
 });
@@ -19,9 +23,28 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid natal data." }, { status: 400 });
   }
   const d = parsed.data;
+  const timeZone = d.timeZone && isValidTimeZone(d.timeZone) ? d.timeZone : undefined;
 
-  // Demo mode: accept without persisting.
-  if (!AUTH_ENABLED) return Response.json({ ok: true, demo: true });
+  // Demo mode → persist in the natal cookie so the whole app uses this chart.
+  if (!AUTH_ENABLED) {
+    const store = await cookies();
+    store.set(
+      NATAL_COOKIE,
+      encodeURIComponent(
+        JSON.stringify({
+          name: d.name,
+          date: d.date,
+          time: d.time,
+          lat: d.lat,
+          lng: d.lng,
+          timeZone,
+          location: d.location,
+        }),
+      ),
+      { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" },
+    );
+    return Response.json({ ok: true, demo: true });
+  }
 
   const session = await auth();
   const id = session?.user?.id;
@@ -32,6 +55,7 @@ export async function POST(req: Request) {
     time: d.time,
     lat: d.lat,
     lng: d.lng,
+    timeZone,
     utcOffset: d.utcOffset,
   });
   const sun = chart.planets.find((p) => p.planet === "sun")!;

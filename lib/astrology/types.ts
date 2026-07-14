@@ -75,7 +75,11 @@ export interface NatalInput {
   lat: number; // degrees, north positive
   lng: number; // degrees, east positive
   houseSystem?: HouseSystem; // default "placidus"
-  /** UTC offset in hours of the birth place (e.g. -3 for Rio). Defaults to round(lng/15). */
+  /** IANA zone (e.g. "America/Sao_Paulo"). Preferred — resolves the historical
+   *  offset (incl. DST) for the birth moment. */
+  timeZone?: string;
+  /** Fixed UTC offset in hours (e.g. -3 for Rio). Used when timeZone is absent.
+   *  Defaults to round(lng/15). */
   utcOffset?: number;
 }
 

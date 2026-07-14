@@ -1,4 +1,7 @@
-import type { MoonPhaseInfo } from "@/lib/transits";
+"use client";
+
+import type { MoonPhaseInfo, MoonPhaseKey } from "@/lib/transits";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 /** Moon disc with an elliptical terminator sized by the phase angle. */
 function MoonDisc({ angle, size = 64 }: { angle: number; size?: number }) {
@@ -17,17 +20,60 @@ function MoonDisc({ angle, size = 64 }: { angle: number; size?: number }) {
   );
 }
 
+const NAME_KEY: Record<MoonPhaseKey, MoonPhaseKey> = {
+  newMoon: "newMoon",
+  waxingCrescent: "waxingCrescent",
+  firstQuarter: "firstQuarter",
+  waxingGibbous: "waxingGibbous",
+  fullMoon: "fullMoon",
+  waningGibbous: "waningGibbous",
+  lastQuarter: "lastQuarter",
+  waningCrescent: "waningCrescent",
+};
+
+const DESC_KEY: Record<MoonPhaseKey, "descNew" | "descWaxingCrescent" | "descFirstQuarter" | "descWaxingGibbous" | "descFull" | "descWaningGibbous" | "descLastQuarter" | "descWaningCrescent"> = {
+  newMoon: "descNew",
+  waxingCrescent: "descWaxingCrescent",
+  firstQuarter: "descFirstQuarter",
+  waxingGibbous: "descWaxingGibbous",
+  fullMoon: "descFull",
+  waningGibbous: "descWaningGibbous",
+  lastQuarter: "descLastQuarter",
+  waningCrescent: "descWaningCrescent",
+};
+
+export function moonPhaseDescription(
+  info: MoonPhaseInfo,
+  moonDict: { [k: string]: string },
+): string {
+  return moonDict[DESC_KEY[info.phaseKey]];
+}
+
 export function MoonPhase({ info, size = 64 }: { info: MoonPhaseInfo; size?: number }) {
+  const { dict } = useI18n();
   return (
     <div className="flex items-center gap-4">
       <MoonDisc angle={info.angle} size={size} />
       <div className="min-w-0">
-        <p className="font-display text-lg text-[var(--text-primary-color)]">{info.name}</p>
-        <p className="text-xs text-[var(--text-secondary-color)]">{Math.round(info.illumination * 100)}% illuminated</p>
+        <p className="font-display text-lg text-[var(--text-primary-color)]">
+          {dict.moon[NAME_KEY[info.phaseKey]]}
+        </p>
+        <p className="text-xs text-[var(--text-secondary-color)]">
+          {Math.round(info.illumination * 100)}% {dict.moon.illuminated}
+        </p>
         <p className="mt-1 text-[11px] uppercase tracking-widest text-[var(--text-muted-color)]">
-          Full moon in {info.daysToFull} days
+          {dict.moon.fullMoonIn.replace("{n}", String(info.daysToFull))}
         </p>
       </div>
     </div>
+  );
+}
+
+export function MoonPhaseDescription({ info }: { info: MoonPhaseInfo }) {
+  const { dict } = useI18n();
+  return (
+    <p className="mt-4 text-sm leading-relaxed text-[var(--text-secondary-color)]">
+      {dict.moon[DESC_KEY[info.phaseKey]]}
+    </p>
   );
 }

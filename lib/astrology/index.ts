@@ -10,8 +10,14 @@ import {
   type NatalInput,
 } from "./types";
 
-/** Build a UTC Date from local civil date/time + UTC offset (default round(lng/15)). */
+import { resolveUtcMs, isValidTimeZone } from "@/lib/timezone";
+
+/** UTC instant for the birth moment. Preference order: IANA timeZone
+ *  (historical offsets incl. DST) → fixed utcOffset → round(lng/15). */
 function toUtcDate(input: NatalInput): Date {
+  if (input.timeZone && isValidTimeZone(input.timeZone)) {
+    return new Date(resolveUtcMs(input.date, input.time, input.timeZone));
+  }
   const [y, m, d] = input.date.split("-").map(Number);
   const [hh, mm] = input.time.split(":").map(Number);
   const offset = input.utcOffset ?? Math.round(input.lng / 15);

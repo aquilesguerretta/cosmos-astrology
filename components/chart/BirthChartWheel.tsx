@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { ChartData, Planet, PlanetPosition } from "@/lib/astrology";
-import { PLANET_GLYPHS, PLANET_NAMES, ZODIAC } from "@/components/ui";
+import { PLANET_GLYPHS, ZODIAC } from "@/components/ui";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { ASPECT_META } from "./aspectMeta";
 
 interface BirthChartWheelProps {
@@ -32,6 +33,7 @@ export function BirthChartWheel({
   highlightedPlanet = null,
   onPlanetHover,
 }: BirthChartWheelProps) {
+  const { dict } = useI18n();
   const asc = chartData.angles.asc;
   const [hoverPlanet, setHoverPlanet] = useState<Planet | null>(null);
   const [hoverHouse, setHoverHouse] = useState<number | null>(null);
@@ -108,7 +110,7 @@ export function BirthChartWheel({
             fill={hoverHouse === c.house ? "rgba(201,168,76,0.10)" : "transparent"}
             stroke={hoverHouse === c.house ? "rgba(201,168,76,0.4)" : "transparent"}
             style={{ cursor: "pointer" }}
-            onMouseEnter={() => { setHoverHouse(c.house); const mid = c.longitude + norm360(next.longitude - c.longitude) / 2; showTip(mid, R.cusp, [`House ${ROMAN[c.house - 1]}`, planetsInHouse(c.house) || "—"]); }}
+            onMouseEnter={() => { setHoverHouse(c.house); const mid = c.longitude + norm360(next.longitude - c.longitude) / 2; showTip(mid, R.cusp, [`${dict.common.house} ${ROMAN[c.house - 1]}`, planetsInHouse(c.house) || "—"]); }}
             onMouseLeave={() => { setHoverHouse(null); setTip(null); }}
           />
         );
@@ -174,7 +176,7 @@ export function BirthChartWheel({
             <line
               x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth={7}
               style={{ cursor: "pointer" }}
-              onMouseEnter={() => { setHoverAspect(i); showTip((l1 + l2) / 2, R.center / 2, [`${PLANET_NAMES[asp.planet1]} ${meta.symbol} ${PLANET_NAMES[asp.planet2]}`, `${meta.label} · orb ${asp.orb}°`, asp.isApplying ? "applying" : "separating"]); }}
+              onMouseEnter={() => { setHoverAspect(i); showTip((l1 + l2) / 2, R.center / 2, [`${dict.planets[asp.planet1]} ${meta.symbol} ${dict.planets[asp.planet2]}`, `${dict.aspects[asp.type]} · ${dict.common.orb} ${asp.orb}°`, asp.isApplying ? dict.common.applying : dict.common.separating]); }}
               onMouseLeave={() => { setHoverAspect(null); setTip(null); }}
             />
           </g>
@@ -196,7 +198,7 @@ export function BirthChartWheel({
             {p.isRetrograde && <text x={g.x + 11} y={g.y - 9} fontSize={8} fill="#E8A94C" textAnchor="middle" pointerEvents="none">℞</text>}
             <circle
               cx={g.x} cy={g.y} r={16} fill="transparent" style={{ cursor: "pointer" }}
-              onMouseEnter={() => { setHoverPlanet(p.planet); onPlanetHover?.(p.planet); showTip(p.longitude, r, [PLANET_NAMES[p.planet], `${ZODIAC[Math.floor(norm360(p.longitude) / 30)].glyph} ${p.degree}°${String(p.minutes).padStart(2, "0")}'`, `House ${ROMAN[p.house - 1]}${p.isRetrograde ? " · ℞" : ""}`]); }}
+              onMouseEnter={() => { setHoverPlanet(p.planet); onPlanetHover?.(p.planet); showTip(p.longitude, r, [dict.planets[p.planet], `${ZODIAC[Math.floor(norm360(p.longitude) / 30)].glyph} ${p.degree}°${String(p.minutes).padStart(2, "0")}'`, `${dict.common.house} ${ROMAN[p.house - 1]}${p.isRetrograde ? " · ℞" : ""}`]); }}
               onMouseLeave={() => { setHoverPlanet(null); onPlanetHover?.(null); setTip(null); }}
               onClick={() => onPlanetClick?.(p)}
             />

@@ -2,26 +2,19 @@
 
 import { useState } from "react";
 import { Star, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
-import { Card, ZodiacIcon, ZODIAC_BY_KEY, type ZodiacSign } from "@/components/ui";
-import { SIGN_MODALITY } from "@/lib/astrology";
+import { Card, ZodiacIcon, type ZodiacSign } from "@/components/ui";
+import { SIGN_MODALITY, SIGN_ELEMENT } from "@/lib/astrology";
 import type { HoroscopeContent } from "@/lib/ai";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
-const TABS = [
-  { key: "overall", label: "General" },
-  { key: "love", label: "Love" },
-  { key: "career", label: "Vocation" },
-  { key: "health", label: "Health" },
-] as const;
-type TabKey = (typeof TABS)[number]["key"];
-
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+type TabKey = "overall" | "love" | "career" | "health";
 
 function Row({ label, value, last }: { label: string; value: string; last?: boolean }) {
   return (
-    <div className={cn("flex justify-between", !last && "border-b border-[var(--gold)]/10 pb-2")}>
+    <div className={cn("flex justify-between gap-3", !last && "border-b border-[var(--gold)]/10 pb-2")}>
       <span className="label-caps">{label}</span>
-      <span>{value}</span>
+      <span className="text-right">{value}</span>
     </div>
   );
 }
@@ -37,21 +30,28 @@ interface ReadingPanelProps {
 }
 
 export function ReadingPanel({ sign, dateLabel, content, loading, canGoNext, onPrev, onNext }: ReadingPanelProps) {
+  const { dict } = useI18n();
   const [tab, setTab] = useState<TabKey>("overall");
-  const z = ZODIAC_BY_KEY[sign];
   const rating = content?.rating ?? 0;
 
+  const TABS: { key: TabKey; label: string }[] = [
+    { key: "overall", label: dict.reading.tabGeneral },
+    { key: "love", label: dict.reading.tabLove },
+    { key: "career", label: dict.reading.tabCareer },
+    { key: "health", label: dict.reading.tabHealth },
+  ];
+
   function share() {
-    const text = content ? `${z.name} — ${content.overall}` : `${z.name} · Cosmos`;
+    const text = content ? `${dict.zodiac.names[sign]} — ${content.overall}` : `${dict.zodiac.names[sign]} · Cosmos`;
     if (typeof navigator !== "undefined" && navigator.share) {
-      navigator.share({ title: `Cosmos · ${z.name}`, text }).catch(() => {});
+      navigator.share({ title: `Cosmos · ${dict.zodiac.names[sign]}`, text }).catch(() => {});
     } else {
       navigator.clipboard?.writeText(text).catch(() => {});
     }
   }
 
   return (
-    <Card glow className="p-8 md:p-10">
+    <Card glow className="p-6 sm:p-8 md:p-10">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div className="glass flex items-center gap-1 px-2 py-1">
           <button onClick={onPrev} className="grid h-8 w-8 place-items-center text-[var(--text-secondary-color)] hover:text-[var(--gold-light)]" aria-label="Previous day"><ChevronLeft size={16} /></button>
@@ -64,7 +64,7 @@ export function ReadingPanel({ sign, dateLabel, content, loading, canGoNext, onP
               <Star key={i} size={14} className={i <= rating ? "fill-[var(--gold)] text-[var(--gold)]" : "text-[var(--gold)]/25"} />
             ))}
           </div>
-          <button onClick={share} className="grid h-8 w-8 place-items-center text-[var(--text-secondary-color)] hover:text-[var(--gold-light)]" aria-label="Share"><Share2 size={14} /></button>
+          <button onClick={share} className="grid h-8 w-8 place-items-center text-[var(--text-secondary-color)] hover:text-[var(--gold-light)]" aria-label={dict.common.share}><Share2 size={14} /></button>
         </div>
       </div>
 
@@ -75,14 +75,13 @@ export function ReadingPanel({ sign, dateLabel, content, loading, canGoNext, onP
             <div className="absolute inset-3 rounded-full border border-[var(--gold)]/20" />
             <ZodiacIcon sign={sign} size={108} className="gold-text" />
           </div>
-          <p className="mt-3 text-center font-display text-3xl">{z.name}</p>
-          <p className="label-caps mt-1 text-center">{z.dates}</p>
+          <p className="mt-3 text-center font-display text-3xl">{dict.zodiac.names[sign]}</p>
+          <p className="label-caps mt-1 text-center">{dict.zodiac.dates[sign]}</p>
           <div className="mt-6 space-y-2 text-xs text-[var(--text-secondary-color)]">
-            <Row label="Element" value={z.element} />
-            <Row label="Ruler" value={z.ruler} />
-            <Row label="Modality" value={cap(SIGN_MODALITY[sign])} />
-            {content && <Row label="Lucky №" value={String(content.luckyNumber)} />}
-            {content && <Row label="Lucky color" value={content.luckyColor} last />}
+            <Row label={dict.reading.element} value={dict.elements[SIGN_ELEMENT[sign]]} />
+            <Row label={dict.reading.modality} value={dict.modalities[SIGN_MODALITY[sign]]} />
+            {content && <Row label={dict.reading.luckyNumber} value={String(content.luckyNumber)} />}
+            {content && <Row label={dict.reading.luckyColor} value={content.luckyColor} last />}
           </div>
         </div>
 

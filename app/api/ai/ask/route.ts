@@ -1,6 +1,8 @@
-import { streamCompletion, ASK_SYSTEM, askPrompt, askFallback } from "@/lib/ai";
+import { getLocale } from "@/lib/i18n";
+import { streamCompletion, askSystem, askPrompt, askFallback } from "@/lib/ai";
 
 export async function POST(req: Request) {
+  const locale = await getLocale();
   const body = await req.json().catch(() => ({}));
   const question = String(body.question ?? "").slice(0, 500).trim();
   const context = String(body.context ?? "").slice(0, 2000);
@@ -10,10 +12,10 @@ export async function POST(req: Request) {
   }
 
   const stream = streamCompletion({
-    system: ASK_SYSTEM,
-    prompt: askPrompt(question, context),
+    system: askSystem(locale),
+    prompt: askPrompt(locale, question, context),
     maxTokens: 320,
-    fallback: askFallback(question),
+    fallback: askFallback(locale, question),
   });
 
   return new Response(stream, {

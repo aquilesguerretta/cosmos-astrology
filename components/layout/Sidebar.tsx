@@ -12,14 +12,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const NAV = [
-  { href: "/sanctum", label: "Sanctum", icon: LayoutGrid },
-  { href: "/chart", label: "Natal Chart", icon: Compass },
-  { href: "/reading", label: "Daily Reading", icon: BookOpen },
-  { href: "/synastry", label: "Synastry", icon: Users },
-  { href: "/profile", label: "The Self", icon: Settings },
-] as const;
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 
 export interface SidebarUser {
   name: string;
@@ -37,6 +31,15 @@ const DEFAULT_USER: SidebarUser = {
 
 export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
   const pathname = usePathname();
+  const { dict } = useI18n();
+
+  const NAV = [
+    { href: "/sanctum", label: dict.nav.sanctum, icon: LayoutGrid },
+    { href: "/chart", label: dict.nav.natalChart, icon: Compass },
+    { href: "/reading", label: dict.nav.dailyReading, icon: BookOpen },
+    { href: "/synastry", label: dict.nav.synastry, icon: Users },
+    { href: "/profile", label: dict.nav.theSelf, icon: Settings },
+  ];
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col border-r border-[var(--gold)]/10 bg-[linear-gradient(180deg,rgba(10,10,15,0.95)_0%,rgba(18,18,26,0.95)_100%)] backdrop-blur-md lg:flex">
@@ -52,7 +55,7 @@ export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
           </svg>
           <span className="font-display gold-text text-2xl tracking-wide">Cosmos</span>
         </div>
-        <p className="label-caps mt-1.5 text-[10px]">Est · MMXXVI</p>
+        <p className="label-caps mt-1.5 text-[10px]">{dict.nav.est}</p>
       </Link>
 
       {/* User crest */}
@@ -67,7 +70,9 @@ export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
             </span>
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm text-[var(--text-primary-color)]">{user.name}</p>
+            <p className="truncate text-sm text-[var(--text-primary-color)]">
+              {user.name || dict.common.traveler}
+            </p>
             <p className="text-[11px] tracking-wider text-[var(--text-secondary-color)]">
               {user.summary}
             </p>
@@ -77,7 +82,7 @@ export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
 
       {/* Nav */}
       <nav className="flex-1 space-y-0.5 px-3 py-5">
-        <p className="label-caps px-4 pb-3">Constellations</p>
+        <p className="label-caps px-4 pb-3">{dict.nav.constellations}</p>
         {NAV.map((n) => {
           const Icon = n.icon;
           const active = pathname === n.href || pathname.startsWith(`${n.href}/`);
@@ -108,13 +113,16 @@ export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
         <div className="glass flex items-center gap-2.5 px-3 py-2.5">
           <Crown size={14} className="text-[var(--gold)]" />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] text-[var(--text-primary-color)]">Celestial Plan</p>
-            <p className="text-[10px] text-[var(--text-muted-color)]">Renews 14 Jun</p>
+            <p className="text-[11px] text-[var(--text-primary-color)]">{dict.nav.celestialPlan}</p>
+            <p className="text-[10px] text-[var(--text-muted-color)]">{dict.nav.renews}</p>
           </div>
         </div>
-        <button className="flex items-center gap-2 text-xs text-[var(--text-muted-color)] transition hover:text-[var(--text-primary-color)]">
-          <LogOut size={13} strokeWidth={1.5} /> Retire from session
-        </button>
+        <div className="flex items-center justify-between">
+          <button className="flex items-center gap-2 text-xs text-[var(--text-muted-color)] transition hover:text-[var(--text-primary-color)]">
+            <LogOut size={13} strokeWidth={1.5} /> {dict.nav.retire}
+          </button>
+          <LanguageSwitcher />
+        </div>
       </div>
     </aside>
   );

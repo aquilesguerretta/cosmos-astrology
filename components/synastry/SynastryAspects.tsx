@@ -1,11 +1,15 @@
+"use client";
+
 import type { SynastryAspect } from "@/lib/astrology/synastry";
 import type { Planet } from "@/lib/astrology";
-import { Card, PLANET_GLYPHS, PLANET_NAMES } from "@/components/ui";
+import { Card, PLANET_GLYPHS } from "@/components/ui";
 import { ASPECT_META } from "@/components/chart";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 const PERSONAL: Planet[] = ["sun", "moon", "mercury", "venus", "mars"];
 
 export function SynastryAspects({ aspects }: { aspects: SynastryAspect[] }) {
+  const { dict } = useI18n();
   const top = aspects
     .filter((a) => PERSONAL.includes(a.planetA) && PERSONAL.includes(a.planetB))
     .slice(0, 6);
@@ -25,20 +29,18 @@ export function SynastryAspects({ aspects }: { aspects: SynastryAspect[] }) {
                 className="border px-2 py-1 text-[10px] uppercase tracking-[0.2em]"
                 style={{ color: meta.color, borderColor: `${meta.color}55` }}
               >
-                {meta.label}
+                {dict.aspects[a.type]}
               </span>
             </div>
             <p className="font-display text-xl text-[var(--text-primary-color)]">
-              {PLANET_NAMES[a.planetA]} {meta.label.toLowerCase()} {PLANET_NAMES[a.planetB]}
+              {dict.planets[a.planetA]} {dict.aspects[a.type].toLowerCase()} {dict.planets[a.planetB]}
             </p>
             <div className="mt-4 h-[3px] bg-white/5">
               <div className="h-full" style={{ width: `${Math.max(8, 100 - a.orb * 12)}%`, background: meta.color }} />
             </div>
-            <p className="mt-1.5 text-xs tracking-widest text-[var(--text-muted-color)]">orb {a.orb}°</p>
+            <p className="mt-1.5 text-xs tracking-widest text-[var(--text-muted-color)]">{dict.common.orb} {a.orb}°</p>
             <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary-color)]">
-              {a.isHarmonious
-                ? "A current that flows with little resistance between you."
-                : "A productive friction — name it, and it builds rather than burns."}
+              {a.isHarmonious ? dict.synastry.harmonicNote : dict.synastry.tenseNote}
             </p>
           </Card>
         );

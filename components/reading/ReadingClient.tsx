@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import type { ZodiacSign } from "@/components/ui";
 import type { HoroscopeContent } from "@/lib/ai";
 import { AskTheStars } from "@/components/chart";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { ZodiacGrid } from "./ZodiacGrid";
 import { ReadingPanel } from "./ReadingPanel";
-
-const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function shiftISO(iso: string, days: number): string {
   const [y, m, d] = iso.split("-").map(Number);
@@ -16,16 +14,12 @@ function shiftISO(iso: string, days: number): string {
   dt.setUTCDate(dt.getUTCDate() + days);
   return dt.toISOString().slice(0, 10);
 }
-function labelISO(iso: string): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  const dt = new Date(Date.UTC(y, m - 1, d));
-  return `${WD[dt.getUTCDay()]} · ${d} ${MO[m - 1]}`;
-}
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
 export function ReadingClient({ userSign }: { userSign: ZodiacSign }) {
+  const { locale, dict } = useI18n();
   const [selected, setSelected] = useState<ZodiacSign>(userSign);
   const [date, setDate] = useState<string>(todayISO);
   const [content, setContent] = useState<HoroscopeContent | null>(null);
@@ -45,7 +39,13 @@ export function ReadingClient({ userSign }: { userSign: ZodiacSign }) {
     return () => {
       alive = false;
     };
-  }, [selected, date]);
+  }, [selected, date, locale]);
+
+  const [y, m, d] = date.split("-").map(Number);
+  const dateLabel = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(
+    locale === "pt" ? "pt-BR" : "en-US",
+    { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" },
+  );
 
   const maxDate = shiftISO(todayISO(), 7);
   const canGoNext = date < maxDate;
@@ -56,15 +56,15 @@ export function ReadingClient({ userSign }: { userSign: ZodiacSign }) {
       <div className="mt-12">
         <ReadingPanel
           sign={selected}
-          dateLabel={labelISO(date)}
+          dateLabel={dateLabel}
           content={content}
           loading={loading}
           canGoNext={canGoNext}
-          onPrev={() => setDate((d) => shiftISO(d, -1))}
-          onNext={() => canGoNext && setDate((d) => shiftISO(d, 1))}
+          onPrev={() => setDate((dd) => shiftISO(dd, -1))}
+          onNext={() => canGoNext && setDate((dd) => shiftISO(dd, 1))}
         />
       </div>
-      <AskTheStars context={`Daily reading for ${selected} on ${date}.`} />
+      <AskTheStars context={`${dict.reading.askContext}: ${dict.zodiac.names[selected]} · ${date}`} />
     </>
   );
 }

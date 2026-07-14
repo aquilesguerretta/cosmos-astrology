@@ -3,25 +3,27 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import type { ChartData, PlanetPosition } from "@/lib/astrology";
-import { Card, PLANET_GLYPHS, PLANET_NAMES, ZODIAC_BY_KEY } from "@/components/ui";
-import { ASPECT_META } from "./aspectMeta";
+import { Card, PLANET_GLYPHS } from "@/components/ui";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import type { Dict } from "@/lib/i18n/en";
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
-function aspectsFor(planet: PlanetPosition["planet"], chart: ChartData): string[] {
+function aspectsFor(planet: PlanetPosition["planet"], chart: ChartData, dict: Dict): string[] {
   return chart.aspects
     .filter((a) => a.planet1 === planet || a.planet2 === planet)
     .map((a) => {
       const other = a.planet1 === planet ? a.planet2 : a.planet1;
-      return `${ASPECT_META[a.type].label.toLowerCase()} ${PLANET_NAMES[other]} (orb ${a.orb}°)`;
+      return `${dict.aspects[a.type].toLowerCase()} ${dict.planets[other]} (${dict.common.orb} ${a.orb}°)`;
     });
 }
 
 function InterpretationCard({ p, chart }: { p: PlanetPosition; chart: ChartData }) {
+  const { dict } = useI18n();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
-  const signName = ZODIAC_BY_KEY[p.sign].name;
+  const signName = dict.zodiac.names[p.sign];
 
   async function interpret() {
     setLoading(true);
@@ -31,10 +33,10 @@ function InterpretationCard({ p, chart }: { p: PlanetPosition; chart: ChartData 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          planet: PLANET_NAMES[p.planet],
+          planet: dict.planets[p.planet],
           sign: signName,
           house: p.house,
-          aspects: aspectsFor(p.planet, chart),
+          aspects: aspectsFor(p.planet, chart, dict),
         }),
       });
       if (!res.body) return;
@@ -58,11 +60,11 @@ function InterpretationCard({ p, chart }: { p: PlanetPosition; chart: ChartData 
 
   return (
     <Card className="p-5">
-      <button onClick={toggle} className="flex w-full items-center justify-between text-left">
+      <button onClick={toggle} className="flex w-full items-center justify-between gap-3 text-left">
         <span className="flex items-center gap-3">
           <span className="font-display text-xl text-[var(--gold-light)]">{PLANET_GLYPHS[p.planet]}</span>
           <span className="font-display text-lg text-[var(--text-primary-color)]">
-            {PLANET_NAMES[p.planet]} in {signName}, House {ROMAN[p.house - 1]}
+            {dict.planets[p.planet]} {dict.chart.inSign} {signName}, {dict.common.house} {ROMAN[p.house - 1]}
             {p.isRetrograde && <span className="ml-1.5 text-xs text-[var(--warning)]">℞</span>}
           </span>
         </span>
@@ -82,12 +84,13 @@ function InterpretationCard({ p, chart }: { p: PlanetPosition; chart: ChartData 
 }
 
 export function InterpretationPanel({ chartData }: { chartData: ChartData }) {
+  const { dict } = useI18n();
   return (
     <section className="mt-10">
       <div className="mb-6 flex items-center gap-3">
         <Sparkles size={14} className="text-[var(--gold)]" />
-        <h3 className="font-display text-2xl" style={{ fontWeight: 400 }}>The Interpretation</h3>
-        <span className="label-caps ml-auto text-[var(--text-muted-color)]">Composed by Cosmos</span>
+        <h3 className="font-display text-2xl" style={{ fontWeight: 400 }}>{dict.chart.interpretationTitle}</h3>
+        <span className="label-caps ml-auto hidden text-[var(--text-muted-color)] sm:block">{dict.chart.composedBy}</span>
       </div>
       <div className="space-y-3">
         {chartData.planets

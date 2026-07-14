@@ -1,7 +1,11 @@
+"use client";
+
 import type { PlanetPosition } from "@/lib/astrology";
-import { PLANET_GLYPHS, PLANET_NAMES, ZODIAC_BY_KEY } from "@/components/ui";
+import { PLANET_GLYPHS, ZODIAC_BY_KEY } from "@/components/ui";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export function PlanetStrip({ planets }: { planets: PlanetPosition[] }) {
+  const { dict } = useI18n();
   return (
     <div className="glass flex gap-px divide-x divide-[var(--gold)]/10 overflow-x-auto">
       {planets
@@ -13,7 +17,7 @@ export function PlanetStrip({ planets }: { planets: PlanetPosition[] }) {
               {p.isRetrograde && <span className="ml-0.5 align-super text-[10px] text-[var(--warning)]">℞</span>}
             </p>
             <p className="mt-1.5 text-[9px] uppercase tracking-[0.16em] text-[var(--text-muted-color)]">
-              {PLANET_NAMES[p.planet]}
+              {dict.planets[p.planet]}
             </p>
             <p className="mt-1 text-sm text-[var(--text-primary-color)]">
               {ZODIAC_BY_KEY[p.sign].glyph}

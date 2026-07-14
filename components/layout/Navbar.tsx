@@ -3,17 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Menu, X } from "lucide-react";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 
-const LINKS = [
-  { label: "Atlas", href: "#" },
-  { label: "Practitioners", href: "#" },
-  { label: "Almanac", href: "#" },
-  { label: "Membership", href: "#" },
-];
-
-/** Marketing top bar — desktop nav (figma landing header) + mobile hamburger. */
+/** Marketing top bar — desktop nav + mobile hamburger + language switcher. */
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { dict } = useI18n();
+
+  const LINKS = [
+    { label: dict.nav.atlas, href: "#" },
+    { label: dict.nav.practitioners, href: "#" },
+    { label: dict.nav.almanac, href: "#" },
+    { label: dict.nav.membership, href: "#" },
+  ];
 
   return (
     <header className="relative z-20 flex items-center justify-between px-6 py-6 md:px-12">
@@ -35,22 +38,28 @@ export function Navbar() {
         ))}
       </nav>
 
-      <Link
-        href="/sanctum"
-        className="label-caps hidden items-center gap-2 text-xs text-[var(--gold-light)] transition hover:text-[var(--gold)] md:flex"
-      >
-        Enter Sanctum <ArrowRight size={14} />
-      </Link>
+      <div className="hidden items-center gap-6 md:flex">
+        <LanguageSwitcher />
+        <Link
+          href="/sanctum"
+          className="label-caps flex items-center gap-2 text-xs text-[var(--gold-light)] transition hover:text-[var(--gold)]"
+        >
+          {dict.nav.enterSanctum} <ArrowRight size={14} />
+        </Link>
+      </div>
 
       {/* mobile toggle */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="text-[var(--gold-light)] md:hidden"
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-      >
-        {open ? <X size={22} /> : <Menu size={22} />}
-      </button>
+      <div className="flex items-center gap-4 md:hidden">
+        <LanguageSwitcher />
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="text-[var(--gold-light)]"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
 
       {/* mobile menu */}
       {open && (
@@ -70,7 +79,7 @@ export function Navbar() {
             onClick={() => setOpen(false)}
             className="label-caps mt-1 flex items-center gap-2 border-t border-[var(--gold)]/15 px-3 pt-3 text-xs text-[var(--gold-light)]"
           >
-            Enter Sanctum <ArrowRight size={14} />
+            {dict.nav.enterSanctum} <ArrowRight size={14} />
           </Link>
         </div>
       )}

@@ -1,11 +1,13 @@
+import { getLocale } from "@/lib/i18n";
 import {
   streamCompletion,
-  INTERPRETATION_SYSTEM,
+  interpretationSystem,
   interpretationPrompt,
   interpretationFallback,
 } from "@/lib/ai";
 
 export async function POST(req: Request) {
+  const locale = await getLocale();
   const body = await req.json().catch(() => ({}));
   const planet = String(body.planet ?? "").slice(0, 40);
   const sign = String(body.sign ?? "").slice(0, 40);
@@ -15,10 +17,10 @@ export async function POST(req: Request) {
     : [];
 
   const stream = streamCompletion({
-    system: INTERPRETATION_SYSTEM,
-    prompt: interpretationPrompt({ planet, sign, house, aspects }),
+    system: interpretationSystem(locale),
+    prompt: interpretationPrompt(locale, { planet, sign, house, aspects }),
     maxTokens: 320,
-    fallback: interpretationFallback({ planet, sign, house }),
+    fallback: interpretationFallback(locale, { planet, sign, house }),
   });
 
   return new Response(stream, {

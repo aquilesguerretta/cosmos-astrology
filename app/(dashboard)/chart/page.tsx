@@ -1,7 +1,7 @@
 import { calculateNatalChart, signOf } from "@/lib/astrology";
 import { getCurrentUser } from "@/lib/user";
 import { getDict, intlTag } from "@/lib/i18n";
-import { ZODIAC_BY_KEY } from "@/components/ui";
+import { Explainer, SignGlyph, PlanetSymbol } from "@/components/ui";
 import { ChartView, InterpretationPanel, AskTheStars } from "@/components/chart";
 
 export const metadata = { title: "Natal Chart" };
@@ -42,12 +42,28 @@ export default async function ChartPage() {
           {birthLabel} · {user.birth.time}
           {user.birthLocation ? ` · ${user.birthLocation}` : ""}
         </p>
-        <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-[var(--text-secondary-color)]">
-          <span>☉ {dict.zodiac.names[sun.sign]} {sun.degree}°{String(sun.minutes).padStart(2, "0")}&apos;</span>
-          <span>☽ {dict.zodiac.names[moon.sign]} {moon.degree}°{String(moon.minutes).padStart(2, "0")}&apos;</span>
-          <span>↑ {dict.zodiac.names[ascSign]} {ZODIAC_BY_KEY[ascSign].glyph}</span>
+        <p className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-[var(--text-secondary-color)]">
+          <span className="flex items-center gap-1.5">
+            <PlanetSymbol planet="sun" size={14} strokeWidth={2} className="text-[var(--gold)]" />
+            {dict.zodiac.names[sun.sign]} {sun.degree}°{String(sun.minutes).padStart(2, "0")}&apos;
+          </span>
+          <span className="flex items-center gap-1.5">
+            <PlanetSymbol planet="moon" size={14} strokeWidth={2} className="text-[var(--gold)]" />
+            {dict.zodiac.names[moon.sign]} {moon.degree}°{String(moon.minutes).padStart(2, "0")}&apos;
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-[var(--gold)]">↑</span>
+            {dict.zodiac.names[ascSign]}
+            <SignGlyph sign={ascSign} size={13} strokeWidth={2.1} className="text-[var(--gold)]" />
+          </span>
         </p>
       </header>
+
+      <Explainer
+        title={dict.chart.howTitle}
+        items={[dict.chart.how1, dict.chart.how2, dict.chart.how3, dict.chart.how4]}
+        className="mb-8"
+      />
 
       <ChartView chartData={chart} />
       <InterpretationPanel chartData={chart} />

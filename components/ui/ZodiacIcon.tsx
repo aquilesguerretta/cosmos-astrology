@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SignGlyph } from "./glyphs";
 
 export type ZodiacSign =
   | "aries"
@@ -21,11 +22,13 @@ export interface ZodiacInfo {
   name: string;
   dates: string;
   element: Element;
+  /** Unicode character — kept for plain-text contexts (PDF, AI prompts).
+   *  UI must render <ZodiacIcon>/<SignGlyph> instead (emoji-safe). */
   glyph: string;
   ruler: string;
 }
 
-/** Canonical zodiac reference (glyphs, dates, elements, rulers). From figma ZODIAC. */
+/** Canonical zodiac reference. */
 export const ZODIAC: ZodiacInfo[] = [
   { key: "aries",       name: "Aries",       dates: "Mar 21 – Apr 19", element: "Fire",  glyph: "♈", ruler: "Mars" },
   { key: "taurus",      name: "Taurus",      dates: "Apr 20 – May 20", element: "Earth", glyph: "♉", ruler: "Venus" },
@@ -47,29 +50,24 @@ export const ZODIAC_BY_KEY: Record<ZodiacSign, ZodiacInfo> = Object.fromEntries(
 
 interface ZodiacIconProps {
   sign: ZodiacSign;
-  /** Glyph size in px. */
+  /** Icon size in px. */
   size?: number;
   color?: string;
   className?: string;
 }
 
 /**
- * Renders a zodiac glyph in the display face — matches how the figma design
- * draws every sign (Unicode glyph in Cormorant), not line-art.
+ * Line-art zodiac icon. Renders a hand-drawn SVG path (never the Unicode
+ * character, which Windows/Android turn into a color emoji).
  */
 export function ZodiacIcon({ sign, size = 24, color, className = "" }: ZodiacIconProps) {
   const info = ZODIAC_BY_KEY[sign];
   return (
     <span
-      role="img"
-      aria-label={info.name}
-      className={cn(
-        "font-display inline-flex items-center justify-center leading-none",
-        className,
-      )}
-      style={{ fontSize: size, color }}
+      className={cn("inline-flex items-center justify-center leading-none", className)}
+      style={color ? { color } : undefined}
     >
-      {info.glyph}
+      <SignGlyph sign={sign} size={size} title={info.name} strokeWidth={size >= 48 ? 1.2 : 1.6} />
     </span>
   );
 }

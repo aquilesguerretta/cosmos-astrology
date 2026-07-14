@@ -89,6 +89,21 @@ export const pt: Dict = {
     linkTerms: "Termos",
     linkContact: "Contato",
     linkJournal: "Diário",
+    howLabel: "Como funciona",
+    howTitle: "De um momento de nascimento a um céu vivo",
+    how1t: "Inscreva o momento",
+    how1b: "Data, hora e qualquer cidade da Terra. Coordenadas e o fuso histórico — incluindo antigas regras de horário de verão — são resolvidos automaticamente.",
+    how2t: "O motor desenha o céu",
+    how2b: "Planetas, casas e aspectos calculados ao arcminuto com efemérides reais. A mesma geometria move cada página: mapa, dias, vínculos, trânsitos.",
+    how3t: "Cosmos interpreta",
+    how3b: "Uma inteligência treinada nas constelações transforma geometria em linguagem clara e honesta — e a Biblioteca e a Academia ensinam você a ler por conta própria.",
+    feature5t: "Tarô das 78 Portas",
+    feature5b: "Tire digitalmente ou traga uma tiragem física — leituras diretas, honestas e fundadas no método clássico número × naipe.",
+    feature6t: "Biblioteca & Academia",
+    feature6b: "Cada signo, planeta, casa, aspecto e carta explicados — e um curso completo da metodologia por trás de tudo.",
+    ctaTitle: "O céu já está falando.",
+    ctaSub: "Entre no Santuário e veja o clima de hoje projetado sobre o seu próprio mapa.",
+    ctaBtn: "Entrar no Santuário",
   },
 
   auth: {
@@ -172,6 +187,11 @@ export const pt: Dict = {
     askPlaceholder: "Devo aceitar a reunião de sexta-feira?",
     hoverAspect: "Passe o mouse em um aspecto para detalhes",
     inSign: "em",
+    howTitle: "Como ler esta roda",
+    how1: "A faixa externa traz os doze signos; o Ascendente fica fixo à esquerda — a roda é orientada pelo SEU horizonte.",
+    how2: "As doze fatias são as casas — as áreas da vida. Os numerais romanos contam a partir do Ascendente.",
+    how3: "Cada símbolo é um planeta no seu grau exato. Linhas azuis são aspectos fáceis (trígono/sextil); vermelhas, tensos (quadratura/oposição); douradas, fusões (conjunção).",
+    how4: "Passe o mouse em tudo — casas, planetas, linhas — para ver detalhes, e sobre a tabela para iluminar a roda.",
   },
 
   reading: {
@@ -188,6 +208,9 @@ export const pt: Dict = {
     luckyNumber: "Nº da sorte",
     luckyColor: "Cor da sorte",
     askContext: "Leitura diária",
+    explainerTitle: "Como as leituras são lançadas",
+    explainer:
+      "Cada leitura é lançada a partir do céu real do dia escolhido — os planetas em curso e seus signos — filtrado pela lente do seu signo. Navegue por qualquer signo; o seu vem marcado.",
   },
 
   synastry: {
@@ -215,6 +238,18 @@ export const pt: Dict = {
     hour: "Hora",
     place: "Local",
     namePlaceholder: "Nome",
+    typeLabel: "Tipo de vínculo",
+    typeLove: "Amor",
+    typeLoveD: "Atração, intimidade, o clima do casal — Vênus, Marte e os luminares comandam.",
+    typeFriendship: "Amizade",
+    typeFriendshipD: "Conversa, leveza e lealdade — Mercúrio, a Lua e Júpiter comandam.",
+    typeWork: "Trabalho",
+    typeWorkD: "Confiabilidade, impulso e metas comuns — Mercúrio, Saturno e Marte comandam.",
+    typeFamily: "Família",
+    typeFamilyD: "Raízes, cuidado e dever — a Lua, Saturno e Vênus comandam.",
+    methodTitle: "Como o índice funciona",
+    methodNote:
+      "Como o índice funciona: cada tipo de vínculo pesa os pares planetários de forma diferente — o método é ensinado na Academia. Contatos entre luminares sempre importam; o resto muda com a relação.",
   },
 
   profile: {
@@ -397,6 +432,8 @@ export const pt: Dict = {
     position: "Posição",
     clearSpread: "Limpar",
     cardOf: "Carta",
+    methodNote:
+      "Por trás de cada carta: os maiores são arquétipos; os menores seguem o método número × naipe (um Ás planta a semente, um Cinco traz fricção — no domínio do naipe). Estude o sistema inteiro na Biblioteca e na Academia.",
   },
 
   library: {

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Aspect, ChartData, Planet } from "@/lib/astrology";
-import { PLANET_GLYPHS } from "@/components/ui";
+import { PlanetSymbol } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { ASPECT_META } from "./aspectMeta";
 
@@ -56,8 +56,10 @@ export function AspectGrid({ chartData }: AspectGridProps) {
                   </td>
                 );
               })}
-              <td className="h-7 w-7 border border-[var(--gold)]/10 text-center align-middle">
-                <span className="font-display text-base text-[var(--gold-light)]">{PLANET_GLYPHS[row]}</span>
+              <td className="h-7 w-7 border border-[var(--gold)]/10 align-middle">
+                <span className="flex items-center justify-center text-[var(--gold-light)]">
+                  <PlanetSymbol planet={row} size={15} strokeWidth={2} />
+                </span>
               </td>
             </tr>
           ))}

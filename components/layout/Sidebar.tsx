@@ -17,19 +17,20 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+import { SignGlyph, type ZodiacSign } from "@/components/ui";
 
 export interface SidebarUser {
   name: string;
   initial: string;
-  signGlyph: string;
+  sign: ZodiacSign;
   summary: string;
 }
 
 const DEFAULT_USER: SidebarUser = {
   name: "Anaïs Lune",
   initial: "A",
-  signGlyph: "♎",
-  summary: "Libra Sun · Pisces Moon",
+  sign: "pisces",
+  summary: "Pisces · Capricorn",
 };
 
 export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
@@ -71,15 +72,15 @@ export function Sidebar({ user = DEFAULT_USER }: { user?: SidebarUser }) {
             <div className="font-display grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-[var(--purple-mid)] to-[var(--indigo-deep)] text-xl text-[var(--gold-light)]">
               {user.initial}
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full bg-[linear-gradient(135deg,#E8C97A,#9A7A2E)] text-[10px] text-[#0A0A0F]">
-              {user.signGlyph}
+            <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full bg-[linear-gradient(135deg,#E8C97A,#9A7A2E)] text-[#0A0A0F]">
+              <SignGlyph sign={user.sign} size={12} strokeWidth={2.2} />
             </span>
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm text-[var(--text-primary-color)]">
               {user.name || dict.common.traveler}
             </p>
-            <p className="text-[11px] tracking-wider text-[var(--text-secondary-color)]">
+            <p className="truncate text-[11px] tracking-wider text-[var(--text-secondary-color)]">
               {user.summary}
             </p>
           </div>

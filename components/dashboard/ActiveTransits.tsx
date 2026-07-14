@@ -1,7 +1,7 @@
 "use client";
 
 import type { ActiveTransit } from "@/lib/transits";
-import { PLANET_GLYPHS } from "@/components/ui";
+import { PlanetSymbol } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
 export function ActiveTransits({ transits }: { transits: ActiveTransit[] }) {
@@ -15,7 +15,9 @@ export function ActiveTransits({ transits }: { transits: ActiveTransit[] }) {
           .replace("{theme}", dict.transits.houses[t.house]);
         return (
           <li key={t.planet} className="flex gap-3">
-            <span className="font-display mt-0.5 text-xl text-[var(--gold-light)]">{PLANET_GLYPHS[t.planet]}</span>
+            <span className="mt-0.5 text-[var(--gold-light)]">
+              <PlanetSymbol planet={t.planet} size={19} strokeWidth={1.7} />
+            </span>
             <p className="text-sm leading-relaxed text-[var(--text-secondary-color)]">{text}</p>
           </li>
         );

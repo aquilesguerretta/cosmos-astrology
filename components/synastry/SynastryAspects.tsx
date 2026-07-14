@@ -2,7 +2,7 @@
 
 import type { SynastryAspect } from "@/lib/astrology/synastry";
 import type { Planet } from "@/lib/astrology";
-import { Card, PLANET_GLYPHS } from "@/components/ui";
+import { Card, PlanetSymbol } from "@/components/ui";
 import { ASPECT_META } from "@/components/chart";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
@@ -22,8 +22,10 @@ export function SynastryAspects({ aspects }: { aspects: SynastryAspect[] }) {
         return (
           <Card key={`${a.planetA}-${a.planetB}-${i}`} className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <span className="font-display text-2xl text-[var(--gold-light)]">
-                {PLANET_GLYPHS[a.planetA]} {meta.symbol} {PLANET_GLYPHS[a.planetB]}
+              <span className="flex items-center gap-2 text-[var(--gold-light)]">
+                <PlanetSymbol planet={a.planetA} size={21} strokeWidth={1.7} />
+                <span className="font-display text-xl" style={{ color: meta.color }}>{meta.symbol}</span>
+                <PlanetSymbol planet={a.planetB} size={21} strokeWidth={1.7} />
               </span>
               <span
                 className="border px-2 py-1 text-[10px] uppercase tracking-[0.2em]"

@@ -88,6 +88,21 @@ export const en = {
     linkTerms: "Terms",
     linkContact: "Contact",
     linkJournal: "Journal",
+    howLabel: "How it works",
+    howTitle: "From a birth moment to a living sky",
+    how1t: "Inscribe the moment",
+    how1b: "Date, hour and any city on Earth. Coordinates and the historical timezone — including old daylight-saving rules — are resolved automatically.",
+    how2t: "The engine draws the sky",
+    how2b: "Planets, houses and aspects are computed to the arcminute with a real ephemeris. The same geometry powers every page: chart, days, bonds, transits.",
+    how3t: "Cosmos interprets",
+    how3b: "A constellation-trained intelligence turns geometry into plain, honest language — and the Library and Academy teach you to read it yourself.",
+    feature5t: "Tarot of 78 Doors",
+    feature5b: "Draw digitally or bring a physical spread — readings are direct, honest and grounded in the classical number × suit method.",
+    feature6t: "Library & Academy",
+    feature6b: "Every sign, planet, house, aspect and card explained — plus a full course in the methodology behind it all.",
+    ctaTitle: "The sky is already speaking.",
+    ctaSub: "Enter the Sanctum and see today's weather set against your own chart.",
+    ctaBtn: "Enter the Sanctum",
   },
 
   auth: {
@@ -172,6 +187,11 @@ export const en = {
     askPlaceholder: "Should I take the meeting on Friday?",
     hoverAspect: "Hover an aspect for details",
     inSign: "in",
+    howTitle: "How to read this wheel",
+    how1: "The outer band holds the twelve signs; the Ascendant is pinned to the left, so the wheel is oriented to YOUR horizon.",
+    how2: "The twelve slices are the houses — the areas of life. Roman numerals count them from the Ascendant.",
+    how3: "Each symbol is a planet at its exact degree. Blue lines are easy aspects (trine/sextile); red are tense (square/opposition); gold, fusions (conjunction).",
+    how4: "Hover anything — houses, planets, lines — for details, and hover the table to highlight the wheel.",
   },
 
   reading: {
@@ -188,6 +208,9 @@ export const en = {
     luckyNumber: "Lucky №",
     luckyColor: "Lucky color",
     askContext: "Daily reading",
+    explainerTitle: "How readings are cast",
+    explainer:
+      "Each reading is cast from the actual sky of the chosen day — the running planets and their signs — filtered through your sign's lens. Browse any sign; yours is marked.",
   },
 
   synastry: {
@@ -215,6 +238,18 @@ export const en = {
     hour: "Hour",
     place: "Place",
     namePlaceholder: "Name",
+    typeLabel: "Kind of bond",
+    typeLove: "Love",
+    typeLoveD: "Attraction, intimacy, the couple's weather — Venus, Mars and the luminaries lead.",
+    typeFriendship: "Friendship",
+    typeFriendshipD: "Conversation, play and loyalty — Mercury, the Moon and Jupiter lead.",
+    typeWork: "Work",
+    typeWorkD: "Reliability, drive and shared goals — Mercury, Saturn and Mars lead.",
+    typeFamily: "Family",
+    typeFamilyD: "Roots, care and duty — the Moon, Saturn and Venus lead.",
+    methodTitle: "How the score works",
+    methodNote:
+      "How the score works: each kind of bond weighs the planet pairs differently — the method is taught in the Academy. Contacts between luminaries always matter; the rest shifts with the relationship.",
   },
 
   profile: {
@@ -397,6 +432,8 @@ export const en = {
     position: "Position",
     clearSpread: "Clear",
     cardOf: "Card",
+    methodNote:
+      "Behind every card: majors are archetypes; minors follow the number × suit method (an Ace plants a seed, a Five brings friction — in the suit's domain). Study the whole system in the Library and the Academy.",
   },
 
   library: {

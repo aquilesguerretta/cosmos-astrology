@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import type { ChartData, PlanetPosition } from "@/lib/astrology";
-import { Card, PLANET_GLYPHS } from "@/components/ui";
+import { Card, PlanetSymbol } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import type { Dict } from "@/lib/i18n/en";
 
@@ -62,7 +62,9 @@ function InterpretationCard({ p, chart }: { p: PlanetPosition; chart: ChartData 
     <Card className="p-5">
       <button onClick={toggle} className="flex w-full items-center justify-between gap-3 text-left">
         <span className="flex items-center gap-3">
-          <span className="font-display text-xl text-[var(--gold-light)]">{PLANET_GLYPHS[p.planet]}</span>
+          <span className="text-[var(--gold-light)]">
+            <PlanetSymbol planet={p.planet} size={20} strokeWidth={1.7} />
+          </span>
           <span className="font-display text-lg text-[var(--text-primary-color)]">
             {dict.planets[p.planet]} {dict.chart.inSign} {signName}, {dict.common.house} {ROMAN[p.house - 1]}
             {p.isRetrograde && <span className="ml-1.5 text-xs text-[var(--warning)]">℞</span>}

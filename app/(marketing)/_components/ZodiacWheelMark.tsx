@@ -1,8 +1,8 @@
-import { ZODIAC } from "@/components/ui";
+import { ZODIAC, SIGN_PATHS, PLANET_PATHS, type Planet } from "@/components/ui";
 
-const INNER_PLANETS = ["☉", "☽", "♀", "♂", "♃", "♄", "♅"];
+const INNER_PLANETS: Planet[] = ["sun", "moon", "venus", "mars", "jupiter", "saturn", "uranus"];
 
-/** Decorative orbiting zodiac wheel for the landing hero (figma ZodiacWheelMark). */
+/** Decorative orbiting zodiac wheel for the landing hero — pure line-art. */
 export function ZodiacWheelMark() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[540px]">
@@ -31,17 +31,16 @@ export function ZodiacWheelMark() {
             return (
               <g key={z.key}>
                 <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#C9A84C" strokeWidth="0.4" opacity="0.5" />
-                <text
-                  x={gx}
-                  y={gy}
-                  fontSize="14"
-                  fill="#C9A84C"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  opacity="0.9"
-                >
-                  {z.glyph}
-                </text>
+                <g transform={`translate(${gx} ${gy}) scale(0.62) translate(-12 -12)`} opacity="0.9">
+                  <path
+                    d={SIGN_PATHS[z.key]}
+                    fill="none"
+                    stroke="#C9A84C"
+                    strokeWidth={1.7}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </g>
               </g>
             );
           })}
@@ -55,16 +54,20 @@ export function ZodiacWheelMark() {
       {/* inner planets — faster, counter-rotating */}
       <div className="absolute inset-[18%] [animation:orbit_40s_linear_infinite_reverse]">
         <svg viewBox="0 0 400 400" className="h-full w-full">
-          {INNER_PLANETS.map((g, i) => {
-            const angle = (i / 7) * Math.PI * 2;
+          {INNER_PLANETS.map((p, i) => {
+            const angle = (i / INNER_PLANETS.length) * Math.PI * 2;
             const x = 200 + Math.cos(angle) * 130;
             const y = 200 + Math.sin(angle) * 130;
+            const g = PLANET_PATHS[p];
             return (
-              <g key={g}>
-                <circle cx={x} cy={y} r="14" fill="#0A0A0F" stroke="#C9A84C" strokeOpacity="0.5" strokeWidth="0.5" />
-                <text x={x} y={y + 5} fontSize="14" fill="#E8C97A" textAnchor="middle">
-                  {g}
-                </text>
+              <g key={p}>
+                <circle cx={x} cy={y} r="15" fill="#0A0A0F" stroke="#C9A84C" strokeOpacity="0.5" strokeWidth="0.5" />
+                <g transform={`translate(${x} ${y}) scale(0.72) translate(-12 -12)`}>
+                  <path d={g.d} fill="none" stroke="#E8C97A" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" />
+                  {g.dots?.map(([cx, cy, r], di) => (
+                    <circle key={di} cx={cx} cy={cy} r={r} fill="#E8C97A" />
+                  ))}
+                </g>
               </g>
             );
           })}

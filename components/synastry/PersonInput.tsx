@@ -20,11 +20,11 @@ const INPUT =
 export function PersonInput({
   value,
   onChange,
-  glyph,
+  badge,
 }: {
   value: Person;
   onChange: (p: Person) => void;
-  glyph: string;
+  badge: React.ReactNode;
 }) {
   const { dict } = useI18n();
   const set = (patch: Partial<Person>) => onChange({ ...value, ...patch });
@@ -40,10 +40,10 @@ export function PersonInput({
             {value.name.trim()[0]?.toUpperCase() ?? "?"}
           </div>
           <span
-            className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full text-xs text-[#0A0A0F]"
+            className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full text-[#0A0A0F]"
             style={{ background: "linear-gradient(135deg,#E8C97A,#9A7A2E)" }}
           >
-            {glyph}
+            {badge}
           </span>
         </div>
         <input

@@ -1,4 +1,5 @@
 import { getDict } from "@/lib/i18n";
+import { Explainer } from "@/components/ui";
 import { TarotClient } from "@/components/tarot";
 
 export const metadata = { title: "Tarot" };
@@ -18,6 +19,7 @@ export default async function TarotPage() {
           {dict.tarot.sub}
         </p>
       </header>
+      <Explainer title={dict.library.numberTheory} body={dict.tarot.methodNote} className="mb-8" />
       <TarotClient />
     </div>
   );

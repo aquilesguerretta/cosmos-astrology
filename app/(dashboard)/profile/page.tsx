@@ -3,7 +3,8 @@ import { Calendar, Clock, MapPin, Crown, Check, Star, Plus, Trash2, Globe } from
 import { getCurrentUser } from "@/lib/user";
 import { calculateNatalChart, signOf, SIGN_MODALITY } from "@/lib/astrology";
 import { getDict, intlTag } from "@/lib/i18n";
-import { Card, ZodiacIcon, ZODIAC_BY_KEY, Button } from "@/components/ui";
+import { Card, ZodiacIcon, ZODIAC_BY_KEY, Button, SignGlyph, PlanetSymbol } from "@/components/ui";
+import type { ZodiacSign as Sign } from "@/components/ui";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { NotificationToggles } from "@/components/profile/NotificationToggles";
 import { DownloadChartButton, type ChartReport } from "@/components/profile/DownloadChartButton";
@@ -46,23 +47,23 @@ export default async function ProfilePage() {
     aspects: chart.aspects.length,
   };
 
-  const savedCharts = [
+  const savedCharts: { id: string; name: string; rel: string; dt: string; sign: Sign }[] = [
     {
       id: "self",
       name: displayName,
       rel: dict.profile.relSelf,
       dt: `${birthDateLabel} · ${user.birthLocation.split(",")[0] ?? ""}`,
-      glyph: sunInfo.glyph,
+      sign: sun.sign,
     },
-    { id: "elias", name: "Élias B.", rel: dict.profile.relPartner, dt: "22 Jul 1993 · Marseille", glyph: "♋" },
-    { id: "mira", name: "Mira", rel: dict.profile.relFamily, dt: "03 Dec 2022 · Lisbon", glyph: "♐" },
-    { id: "atelier", name: "Atelier Lune", rel: dict.profile.relVenture, dt: "11 Sep 2024 · Lisbon", glyph: "♍" },
+    { id: "elias", name: "Élias B.", rel: dict.profile.relPartner, dt: "22 Jul 1993 · Marseille", sign: "cancer" },
+    { id: "mira", name: "Mira", rel: dict.profile.relFamily, dt: "03 Dec 2022 · Lisbon", sign: "sagittarius" },
+    { id: "atelier", name: "Atelier Lune", rel: dict.profile.relVenture, dt: "11 Sep 2024 · Lisbon", sign: "virgo" },
   ];
 
   const sunTiles = [
-    { label: dict.profile.sun, glyph: "☉", sign: `${dict.zodiac.names[sun.sign]} ${sunInfo.glyph}`, deg: `${sun.degree}°${pad(sun.minutes)}'` },
-    { label: dict.profile.moon, glyph: "☽", sign: `${dict.zodiac.names[moon.sign]} ${ZODIAC_BY_KEY[moon.sign].glyph}`, deg: `${moon.degree}°${pad(moon.minutes)}'` },
-    { label: dict.profile.ascendant, glyph: "AC", sign: `${dict.zodiac.names[ascSign]} ${ZODIAC_BY_KEY[ascSign].glyph}`, deg: "" },
+    { label: dict.profile.sun, icon: <PlanetSymbol planet="sun" size={26} strokeWidth={1.4} />, name: dict.zodiac.names[sun.sign], sign: sun.sign as Sign, deg: `${sun.degree}°${pad(sun.minutes)}'` },
+    { label: dict.profile.moon, icon: <PlanetSymbol planet="moon" size={26} strokeWidth={1.4} />, name: dict.zodiac.names[moon.sign], sign: moon.sign as Sign, deg: `${moon.degree}°${pad(moon.minutes)}'` },
+    { label: dict.profile.ascendant, icon: <span className="font-display text-2xl leading-none">AC</span>, name: dict.zodiac.names[ascSign], sign: ascSign as Sign, deg: "" },
   ];
 
   return (
@@ -90,7 +91,9 @@ export default async function ProfilePage() {
                 <div className="grid h-24 w-24 place-items-center rounded-full font-display text-5xl text-[var(--gold-light)]" style={{ background: "linear-gradient(135deg,#2D1B69,#1E3A5F)", border: "1px solid rgba(201,168,76,0.4)" }}>
                   {user.initial}
                 </div>
-                <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full text-lg text-[#0A0A0F]" style={{ background: "linear-gradient(135deg,#E8C97A,#9A7A2E)" }}>{sunInfo.glyph}</span>
+                <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full text-[#0A0A0F]" style={{ background: "linear-gradient(135deg,#E8C97A,#9A7A2E)" }}>
+                  <SignGlyph sign={sun.sign} size={19} strokeWidth={2.1} />
+                </span>
               </div>
               <div className="min-w-0">
                 <p className="font-display truncate text-3xl">{displayName}</p>
@@ -109,9 +112,12 @@ export default async function ProfilePage() {
               {sunTiles.map((b) => (
                 <div key={b.label} className="border border-[var(--gold)]/10 bg-white/[0.02] px-4 py-4">
                   <p className="label-caps">{b.label}</p>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="font-display text-3xl text-[var(--gold-light)]">{b.glyph}</span>
-                    <span className="text-sm text-[var(--text-primary-color)]">{b.sign}</span>
+                  <div className="mt-2 flex items-center gap-2.5">
+                    <span className="text-[var(--gold-light)]">{b.icon}</span>
+                    <span className="flex items-center gap-1.5 text-sm text-[var(--text-primary-color)]">
+                      {b.name}
+                      <SignGlyph sign={b.sign} size={13} strokeWidth={2.1} className="text-[var(--gold)]" />
+                    </span>
                   </div>
                   {b.deg && <p className="mt-1 text-xs tabular-nums text-[var(--text-muted-color)]">{b.deg}</p>}
                 </div>
@@ -165,7 +171,9 @@ export default async function ProfilePage() {
             <div className="space-y-px">
               {savedCharts.map((c) => (
                 <div key={c.id} className="grid grid-cols-[40px_1fr_auto] items-center gap-4 px-3 py-3 transition hover:bg-white/[0.02] sm:grid-cols-[40px_1fr_90px_auto]">
-                  <span className="font-display text-2xl text-[var(--gold-light)]">{c.glyph}</span>
+                  <span className="text-[var(--gold-light)]">
+                    <SignGlyph sign={c.sign} size={22} strokeWidth={1.6} />
+                  </span>
                   <span className="truncate text-[var(--text-primary-color)]" style={{ fontFamily: "var(--font-display)", fontSize: "18px" }}>{c.name}</span>
                   <span className="hidden text-[11px] uppercase tracking-widest text-[var(--text-muted-color)] sm:block">{c.rel}</span>
                   <span className="hidden text-xs text-[var(--text-secondary-color)] md:block">{c.dt}</span>

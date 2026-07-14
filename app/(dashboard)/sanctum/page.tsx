@@ -4,7 +4,8 @@ import { getCurrentUser } from "@/lib/user";
 import { calculateNatalChart } from "@/lib/astrology";
 import { moonPhase, activeTransits } from "@/lib/transits";
 import { getDict, intlTag } from "@/lib/i18n";
-import { Card } from "@/components/ui";
+import { Card, SignGlyph, PlanetSymbol } from "@/components/ui";
+import { Reveal } from "@/components/motion/Reveal";
 import { Greeting, MoonPhase, MoonPhaseDescription, PlanetStrip, ActiveTransits } from "@/components/dashboard";
 
 export const metadata = { title: "Sanctum" };
@@ -37,13 +38,15 @@ export default async function SanctumPage() {
     `${dict.zodiac.names[tSun.sign]}. ${t.overviewMercury} ${tMerc.isRetrograde ? dict.common.retrograde : dict.common.direct} ` +
     `${t.overviewIn} ${dict.zodiac.names[tMerc.sign]} — ${tMerc.isRetrograde ? t.adviceRx : t.adviceDirect}`;
 
+  const natalSun = natal.planets.find((p) => p.planet === "sun")!;
+
   const ACTIONS = [
-    { title: t.actionChartT, caption: t.actionChartC, href: "/chart", icon: Compass, accent: "☉" },
-    { title: t.actionReadingT, caption: t.actionReadingC, href: "/reading", icon: BookOpen, accent: "♈" },
-    { title: dict.nav.tarot, caption: t.actionTarotC, href: "/tarot", icon: Layers, accent: "✦" },
-    { title: t.actionSynastryT, caption: t.actionSynastryC, href: "/synastry", icon: Users, accent: "♀" },
-    { title: dict.nav.library, caption: t.actionLibraryC, href: "/library", icon: Library, accent: "☽" },
-    { title: dict.nav.learn, caption: t.actionLearnC, href: "/learn", icon: GraduationCap, accent: "♄" },
+    { title: t.actionChartT, caption: t.actionChartC, href: "/chart", icon: Compass, accent: <PlanetSymbol planet="sun" size={20} strokeWidth={1.6} /> },
+    { title: t.actionReadingT, caption: t.actionReadingC, href: "/reading", icon: BookOpen, accent: <SignGlyph sign={natalSun.sign} size={20} strokeWidth={1.6} /> },
+    { title: dict.nav.tarot, caption: t.actionTarotC, href: "/tarot", icon: Layers, accent: <span className="font-display text-xl leading-none">✦</span> },
+    { title: t.actionSynastryT, caption: t.actionSynastryC, href: "/synastry", icon: Users, accent: <PlanetSymbol planet="venus" size={20} strokeWidth={1.6} /> },
+    { title: dict.nav.library, caption: t.actionLibraryC, href: "/library", icon: Library, accent: <PlanetSymbol planet="moon" size={20} strokeWidth={1.6} /> },
+    { title: dict.nav.learn, caption: t.actionLearnC, href: "/learn", icon: GraduationCap, accent: <PlanetSymbol planet="saturn" size={20} strokeWidth={1.6} /> },
   ];
 
   return (
@@ -102,16 +105,17 @@ export default async function SanctumPage() {
 
       {/* Action cards */}
       <div className="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {ACTIONS.map((c) => {
+        {ACTIONS.map((c, i) => {
           const Icon = c.icon;
           return (
-            <Link key={c.title} href={c.href} className="block">
+            <Reveal key={c.title} delay={i * 0.07}>
+            <Link href={c.href} className="block h-full">
               <Card className="group p-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(201,168,76,0.18)]">
                 <div className="mb-8 flex items-start justify-between">
                   <div className="grid h-9 w-9 place-items-center border border-[var(--gold)]/30 text-[var(--gold)] transition group-hover:border-[var(--gold)]">
                     <Icon size={15} strokeWidth={1.4} />
                   </div>
-                  <span className="font-display text-xl text-[var(--gold-light)]">{c.accent}</span>
+                  <span className="text-[var(--gold-light)]">{c.accent}</span>
                 </div>
                 <p className="font-display text-2xl text-[var(--text-primary-color)]">{c.title}</p>
                 <p className="mt-2 text-xs tracking-wide text-[var(--text-secondary-color)]">{c.caption}</p>
@@ -120,6 +124,7 @@ export default async function SanctumPage() {
                 </div>
               </Card>
             </Link>
+            </Reveal>
           );
         })}
       </div>

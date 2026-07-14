@@ -9,8 +9,11 @@ export interface SynastryAspect {
   isHarmonious: boolean;
 }
 
+export type SynastryType = "love" | "friendship" | "work" | "family";
+
 export interface SynastryResult {
   score: number; // 0–100
+  type: SynastryType;
   label: string;
   strengths: string[];
   challenges: string[];
@@ -82,8 +85,72 @@ function labelFor(score: number): string {
 
 const PERSONAL: Planet[] = ["sun", "moon", "mercury", "venus", "mars"];
 
-/** Synastry between two natal charts. */
-export function calculateSynastry(a: ChartData, b: ChartData): SynastryResult {
+/** Average of a planet pair scored in both directions (A→B and B→A). */
+function crossScore(a: ChartData, b: ChartData, pa: Planet, pb: Planet): number {
+  return (pairScore(a, b, pa, pb) + pairScore(a, b, pb, pa)) / 2;
+}
+
+/** A benefic/malefic vs both luminaries, both directions. */
+function planetToLuminaries(a: ChartData, b: ChartData, planet: Planet): number {
+  return (
+    (pairScore(a, b, planet, "sun") +
+      pairScore(a, b, planet, "moon") +
+      pairScore(a, b, "sun", planet) +
+      pairScore(a, b, "moon", planet)) / 4
+  );
+}
+
+/**
+ * Per-bond weighting — each relationship kind listens to different planet
+ * pairs (the method taught in the Academy). Weights sum to 0.8; the remaining
+ * 0.2 is the overall harmony of every inter-aspect.
+ */
+function weightedCore(a: ChartData, b: ChartData, type: SynastryType, ascAsc: number): number {
+  const sun = pairScore(a, b, "sun", "sun");
+  const moon = pairScore(a, b, "moon", "moon");
+  switch (type) {
+    case "friendship":
+      return (
+        crossScore(a, b, "mercury", "mercury") * 0.2 +
+        moon * 0.2 +
+        planetToLuminaries(a, b, "jupiter") * 0.15 +
+        sun * 0.15 +
+        ascAsc * 0.1
+      );
+    case "work":
+      return (
+        crossScore(a, b, "mercury", "mercury") * 0.2 +
+        planetToLuminaries(a, b, "saturn") * 0.2 +
+        crossScore(a, b, "mars", "mars") * 0.15 +
+        sun * 0.15 +
+        ascAsc * 0.1
+      );
+    case "family":
+      return (
+        moon * 0.25 +
+        planetToLuminaries(a, b, "saturn") * 0.15 +
+        crossScore(a, b, "venus", "venus") * 0.15 +
+        sun * 0.15 +
+        ascAsc * 0.1
+      );
+    case "love":
+    default:
+      return (
+        sun * 0.2 +
+        moon * 0.2 +
+        crossScore(a, b, "venus", "mars") * 0.15 +
+        crossScore(a, b, "moon", "sun") * 0.15 +
+        ascAsc * 0.1
+      );
+  }
+}
+
+/** Synastry between two natal charts, weighted for the kind of bond. */
+export function calculateSynastry(
+  a: ChartData,
+  b: ChartData,
+  type: SynastryType = "love",
+): SynastryResult {
   // all inter-aspects
   const aspects: SynastryAspect[] = [];
   for (const pa of a.planets) {
@@ -101,20 +168,14 @@ export function calculateSynastry(a: ChartData, b: ChartData): SynastryResult {
     }
   }
 
-  // weighted score
-  const sun = pairScore(a, b, "sun", "sun");
-  const moon = pairScore(a, b, "moon", "moon");
-  const venusMars = (pairScore(a, b, "venus", "mars") + pairScore(a, b, "mars", "venus")) / 2;
-  const moonSun = (pairScore(a, b, "moon", "sun") + pairScore(a, b, "sun", "moon")) / 2;
+  // weighted score — core pairs by bond type + overall harmony
   const ascHit = aspectBetween(a.angles.asc, b.angles.asc);
   const ascAsc = ascHit ? ASPECT_SCORE[ascHit.type] : 0.5;
   const others = aspects.length
     ? aspects.filter((x) => x.isHarmonious).length / aspects.length
     : 0.5;
 
-  const score = Math.round(
-    (sun * 0.2 + moon * 0.2 + venusMars * 0.15 + moonSun * 0.15 + ascAsc * 0.1 + others * 0.2) * 100,
-  );
+  const score = Math.round((weightedCore(a, b, type, ascAsc) + others * 0.2) * 100);
 
   // notable aspects → strengths / challenges (prefer personal-planet contacts, tightest orb)
   const weight = (x: SynastryAspect) =>
@@ -125,5 +186,5 @@ export function calculateSynastry(a: ChartData, b: ChartData): SynastryResult {
   const strengths = sorted.filter((x) => x.isHarmonious).slice(0, 4).map(phrase);
   const challenges = sorted.filter((x) => !x.isHarmonious).slice(0, 4).map(phrase);
 
-  return { score, label: labelFor(score), strengths, challenges, aspects: sorted };
+  return { score, type, label: labelFor(score), strengths, challenges, aspects: sorted };
 }

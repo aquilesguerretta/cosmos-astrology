@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, ArrowRight } from "lucide-react";
-import { Card, Button, ZODIAC_BY_KEY, type ZodiacSign } from "@/components/ui";
-import type { SynastryAspect } from "@/lib/astrology/synastry";
+import { Sparkles, ArrowRight, Heart, Users, Briefcase, Home } from "lucide-react";
+import { Card, Button, Explainer, SignGlyph, PlanetSymbol, type ZodiacSign } from "@/components/ui";
+import type { SynastryAspect, SynastryType } from "@/lib/astrology/synastry";
 import type { Planet } from "@/lib/astrology";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import type { Dict } from "@/lib/i18n/en";
 import { PersonInput, type Person } from "./PersonInput";
 import { ResonanceRing } from "./ResonanceRing";
 import { SynastryAspects } from "./SynastryAspects";
+import { cn } from "@/lib/utils";
 
 interface BigThree {
   sun: ZodiacSign;
@@ -19,6 +20,7 @@ interface BigThree {
 
 interface Result {
   score: number;
+  type: SynastryType;
   aspects: SynastryAspect[];
   a: BigThree;
   b: BigThree;
@@ -79,6 +81,7 @@ function Divider() {
 
 export function SynastryClient({ initialA }: { initialA: Person }) {
   const { dict } = useI18n();
+  const [type, setType] = useState<SynastryType>("love");
   const [a, setA] = useState<Person>(initialA);
   const [b, setB] = useState<Person>(DEFAULT_B);
   const [result, setResult] = useState<Result | null>(null);
@@ -88,6 +91,14 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
   const [saved, setSaved] = useState(false);
 
   const ready = Boolean(a.date && a.city && b.date && b.city);
+
+  const TYPE_OPTIONS: { key: SynastryType; label: string; desc: string; icon: typeof Heart }[] = [
+    { key: "love", label: dict.synastry.typeLove, desc: dict.synastry.typeLoveD, icon: Heart },
+    { key: "friendship", label: dict.synastry.typeFriendship, desc: dict.synastry.typeFriendshipD, icon: Users },
+    { key: "work", label: dict.synastry.typeWork, desc: dict.synastry.typeWorkD, icon: Briefcase },
+    { key: "family", label: dict.synastry.typeFamily, desc: dict.synastry.typeFamilyD, icon: Home },
+  ];
+  const typeLabel = TYPE_OPTIONS.find((t) => t.key === type)!.label;
 
   async function calculate() {
     if (!ready) return;
@@ -99,7 +110,7 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
       const res = await fetch("/api/synastry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ personA: toPayload(a), personB: toPayload(b) }),
+        body: JSON.stringify({ type, personA: toPayload(a), personB: toPayload(b) }),
       });
       const d = await res.json();
       if (!d.error) setResult(d as Result);
@@ -115,8 +126,10 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
     const strengths = notable(result.aspects, true, dict);
     const challenges = notable(result.aspects, false, dict);
     const context =
-      `Synastry: ${a.name || "A"} (${dict.planets.sun} ${dict.zodiac.names[result.a.sun]}) × ` +
-      `${b.name || "B"} (${dict.planets.sun} ${dict.zodiac.names[result.b.sun]}). ` +
+      `Synastry (${typeLabel}): ${a.name || "A"} (${dict.planets.sun} ${dict.zodiac.names[result.a.sun]}, ` +
+      `${dict.planets.moon} ${dict.zodiac.names[result.a.moon]}, ASC ${dict.zodiac.names[result.a.asc]}) × ` +
+      `${b.name || "B"} (${dict.planets.sun} ${dict.zodiac.names[result.b.sun]}, ` +
+      `${dict.planets.moon} ${dict.zodiac.names[result.b.moon]}, ASC ${dict.zodiac.names[result.b.asc]}). ` +
       `${dict.synastry.resonance} ${result.score}/100 — ${tierLabel(result.score, dict)}. ` +
       `${dict.synastry.strengths}: ${strengths.join("; ")}. ${dict.synastry.edges}: ${challenges.join("; ")}.`;
     try {
@@ -124,7 +137,7 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          question: "Write a full compatibility reading for these two people based on their synastry.",
+          question: `Write a full ${typeLabel.toLowerCase()} compatibility reading for these two people based on their synastry.`,
           context,
         }),
       });
@@ -146,30 +159,73 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* bond type */}
+      <p className="label-caps mb-3">{dict.synastry.typeLabel}</p>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {TYPE_OPTIONS.map((t) => {
+          const Icon = t.icon;
+          const active = type === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => {
+                setType(t.key);
+                setResult(null);
+                setInterp("");
+              }}
+              className={cn(
+                "border p-4 text-left transition-all duration-300",
+                active
+                  ? "border-[var(--gold)]/60 bg-gradient-to-br from-[var(--purple-deep)]/30 to-transparent shadow-[0_0_24px_rgba(201,168,76,0.15)]"
+                  : "border-[var(--gold)]/12 hover:-translate-y-0.5 hover:border-[var(--gold)]/30",
+              )}
+            >
+              <div className="flex items-center gap-2.5">
+                <Icon size={15} strokeWidth={1.5} className={active ? "text-[var(--gold)]" : "text-[var(--text-muted-color)]"} />
+                <span className="font-display text-lg text-[var(--text-primary-color)]">{t.label}</span>
+              </div>
+              <p className="mt-1.5 hidden text-[11px] leading-relaxed text-[var(--text-secondary-color)] sm:block">{t.desc}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      <Explainer title={dict.synastry.methodTitle} body={dict.synastry.methodNote} className="mt-4" />
+
+      {/* people */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {([
-          { person: a, set: setA, three: result?.a, fallback: "☉" },
-          { person: b, set: setB, three: result?.b, fallback: "☽" },
+          { person: a, set: setA, three: result?.a },
+          { person: b, set: setB, three: result?.b },
         ] as const).map((side, i) => (
           <Card key={i} className="p-7">
             <PersonInput
               value={side.person}
               onChange={side.set}
-              glyph={side.three ? ZODIAC_BY_KEY[side.three.sun].glyph : side.fallback}
+              badge={
+                side.three ? (
+                  <SignGlyph sign={side.three.sun} size={13} strokeWidth={2.2} />
+                ) : (
+                  <PlanetSymbol planet={i === 0 ? "sun" : "moon"} size={13} strokeWidth={2.2} />
+                )
+              }
             />
             {side.three && (
               <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--gold)]/15 pt-4">
                 {([
-                  ["☉", side.three.sun],
-                  ["☽", side.three.moon],
-                  ["↑", side.three.asc],
-                ] as const).map(([glyph, sign]) => (
+                  ["sun", side.three.sun],
+                  ["moon", side.three.moon],
+                  ["asc", side.three.asc],
+                ] as const).map(([kind, sign]) => (
                   <span
-                    key={glyph}
-                    className="border border-[var(--gold)]/20 px-2.5 py-1 text-[11px] tracking-wider text-[var(--text-secondary-color)]"
+                    key={kind}
+                    className="flex items-center gap-1.5 border border-[var(--gold)]/20 px-2.5 py-1 text-[11px] tracking-wider text-[var(--text-secondary-color)]"
                   >
-                    <span className="mr-1 text-[var(--gold-light)]">{glyph}</span>
-                    {dict.zodiac.names[sign]} {ZODIAC_BY_KEY[sign].glyph}
+                    <span className="text-[var(--gold-light)]">
+                      {kind === "asc" ? "↑" : <PlanetSymbol planet={kind} size={12} strokeWidth={2.2} />}
+                    </span>
+                    {dict.zodiac.names[sign]}
+                    <SignGlyph sign={sign} size={12} strokeWidth={2.2} className="text-[var(--gold)]" />
                   </span>
                 ))}
               </div>
@@ -187,7 +243,7 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
       {result && (
         <div className="animate-fade-up mt-14">
           <div className="flex justify-center">
-            <ResonanceRing score={result.score} label={tierLabel(result.score, dict)} />
+            <ResonanceRing score={result.score} label={`${tierLabel(result.score, dict)} · ${typeLabel}`} />
           </div>
 
           <div className="mt-14">

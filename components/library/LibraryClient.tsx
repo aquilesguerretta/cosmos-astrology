@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Search, ChevronDown } from "lucide-react";
-import { Card, ZodiacIcon, PLANET_GLYPHS, ZODIAC_BY_KEY } from "@/components/ui";
+import { Card, ZodiacIcon, PlanetSymbol, ZODIAC_BY_KEY } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { SIGN_ENTRIES, PLANET_ENTRIES, HOUSE_ENTRIES, ASPECT_ENTRIES } from "@/lib/knowledge/astro";
 import { FULL_DECK, SUIT_INFO, NUMBER_THEMES, RANK_THEMES, type TarotCard } from "@/lib/tarot/deck";
@@ -178,7 +178,9 @@ export function LibraryClient() {
               onToggle={() => toggle(p.planet)}
               head={
                 <>
-                  <span className="font-display w-8 text-center text-2xl text-[var(--gold-light)]">{PLANET_GLYPHS[p.planet]}</span>
+                  <span className="flex w-8 justify-center text-[var(--gold-light)]">
+                    <PlanetSymbol planet={p.planet} size={22} strokeWidth={1.6} />
+                  </span>
                   <span className="font-display text-lg text-[var(--text-primary-color)]">{dict.planets[p.planet]}</span>
                 </>
               }

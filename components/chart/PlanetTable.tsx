@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChartData, Planet } from "@/lib/astrology";
-import { PLANET_GLYPHS, ZODIAC_BY_KEY } from "@/components/ui";
+import { PlanetSymbol, SignGlyph } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,6 @@ export function PlanetTable({ chartData, highlightedPlanet = null, onPlanetHover
         </thead>
         <tbody>
           {chartData.planets.map((p) => {
-            const sign = ZODIAC_BY_KEY[p.sign];
             const active = highlightedPlanet === p.planet;
             return (
               <tr
@@ -42,15 +41,21 @@ export function PlanetTable({ chartData, highlightedPlanet = null, onPlanetHover
               >
                 <td className="py-2.5">
                   <span className="flex items-center gap-2.5">
-                    <span className="font-display text-xl text-[var(--gold-light)]">{PLANET_GLYPHS[p.planet]}</span>
+                    <span className="text-[var(--gold-light)]">
+                      <PlanetSymbol planet={p.planet} size={18} strokeWidth={1.7} />
+                    </span>
                     <span className="text-[var(--text-primary-color)]">{dict.planets[p.planet]}</span>
                     {p.isRetrograde && <span className="text-[10px] text-[var(--warning)]">℞</span>}
                   </span>
                 </td>
                 <td className="py-2.5">
-                  <span className="text-[var(--gold)]">{sign.glyph}</span>
-                  <span className="ml-1.5 text-xs text-[var(--text-secondary-color)]">
-                    {dict.zodiac.names[p.sign]}
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-[var(--gold)]">
+                      <SignGlyph sign={p.sign} size={14} strokeWidth={2} />
+                    </span>
+                    <span className="text-xs text-[var(--text-secondary-color)]">
+                      {dict.zodiac.names[p.sign]}
+                    </span>
                   </span>
                 </td>
                 <td className="py-2.5 text-right tabular-nums text-xs text-[var(--text-secondary-color)]">

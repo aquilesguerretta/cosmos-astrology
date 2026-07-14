@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { motion, useReducedMotion } from "framer-motion";
 import type { ChartData, Planet } from "@/lib/astrology";
 import { Card } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
@@ -23,13 +24,21 @@ const AspectGrid = dynamic(() => import("./AspectGrid").then((m) => m.AspectGrid
  *  with a synchronized planet highlight across wheel and table. */
 export function ChartView({ chartData }: { chartData: ChartData }) {
   const { dict } = useI18n();
+  const reduce = useReducedMotion();
   const [active, setActive] = useState<Planet | null>(null);
 
   return (
     <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.3fr_1fr]">
       <div className="space-y-6">
         <Card className="grid place-items-center p-4 sm:p-6">
-          <BirthChartWheel chartData={chartData} highlightedPlanet={active} onPlanetHover={setActive} />
+          <motion.div
+            className="grid w-full place-items-center"
+            initial={reduce ? false : { opacity: 0, scale: 0.94, rotate: -5 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1.1, ease: [0.21, 0.65, 0.35, 1] }}
+          >
+            <BirthChartWheel chartData={chartData} highlightedPlanet={active} onPlanetHover={setActive} />
+          </motion.div>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted-color)]">
             <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#4A90D9]" /> {dict.chart.legendSoft}</span>
             <span className="flex items-center gap-2"><span className="h-px w-6 bg-[#E85C4C]" /> {dict.chart.legendHard}</span>

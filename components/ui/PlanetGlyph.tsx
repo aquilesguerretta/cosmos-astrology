@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { PlanetSymbol } from "./glyphs";
 
 export type Planet =
   | "sun"
@@ -17,6 +18,8 @@ export type Planet =
   | "fortune"
   | "vertex";
 
+/** Unicode characters — kept for plain-text contexts (PDF, AI prompts).
+ *  UI must render <PlanetGlyph>/<PlanetSymbol> instead (emoji-safe). */
 export const PLANET_GLYPHS: Record<Planet, string> = {
   sun: "☉",
   moon: "☽",
@@ -55,25 +58,20 @@ export const PLANET_NAMES: Record<Planet, string> = {
 
 interface PlanetGlyphProps {
   planet: Planet;
-  /** Glyph size in px. */
+  /** Icon size in px. */
   size?: number;
   color?: string;
   className?: string;
 }
 
-/** Renders a planet glyph in the display face — matches the figma design. */
+/** Line-art planet icon (emoji-safe SVG path). */
 export function PlanetGlyph({ planet, size = 24, color, className = "" }: PlanetGlyphProps) {
   return (
     <span
-      role="img"
-      aria-label={PLANET_NAMES[planet]}
-      className={cn(
-        "font-display inline-flex items-center justify-center leading-none",
-        className,
-      )}
-      style={{ fontSize: size, color }}
+      className={cn("inline-flex items-center justify-center leading-none", className)}
+      style={color ? { color } : undefined}
     >
-      {PLANET_GLYPHS[planet]}
+      <PlanetSymbol planet={planet} size={size} title={PLANET_NAMES[planet]} strokeWidth={size >= 40 ? 1.3 : 1.6} />
     </span>
   );
 }

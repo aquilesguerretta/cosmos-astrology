@@ -1,5 +1,7 @@
 import { calculateNatalChart, signOf, type ChartData, type NatalInput, type Planet } from "@/lib/astrology";
-import { calculateSynastry } from "@/lib/astrology/synastry";
+import { calculateSynastry, type SynastryType } from "@/lib/astrology/synastry";
+
+const TYPES: SynastryType[] = ["love", "friendship", "work", "family"];
 
 const INNER: Planet[] = ["sun", "moon", "mercury", "venus", "mars"];
 
@@ -25,9 +27,11 @@ export async function POST(req: Request) {
     return Response.json({ error: "two birth inputs required" }, { status: 400 });
   }
 
+  const type: SynastryType = TYPES.includes(body.type) ? body.type : "love";
+
   const chartA = await calculateNatalChart(a);
   const chartB = await calculateNatalChart(b);
-  const result = calculateSynastry(chartA, chartB);
+  const result = calculateSynastry(chartA, chartB, type);
 
   return Response.json({ ...result, a: summarize(chartA), b: summarize(chartB) });
 }

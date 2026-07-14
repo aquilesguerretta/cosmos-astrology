@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import type { ChartData, Planet, PlanetPosition } from "@/lib/astrology";
-import { PLANET_GLYPHS, ZODIAC } from "@/components/ui";
+import { ZODIAC, SIGN_PATHS, PLANET_PATHS } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { ASPECT_META } from "./aspectMeta";
 
@@ -84,7 +84,7 @@ export function BirthChartWheel({
   }, [chartData, asc]);
 
   const planetsInHouse = (h: number) =>
-    chartData.planets.filter((p) => p.house === h).map((p) => PLANET_GLYPHS[p.planet]).join(" ");
+    chartData.planets.filter((p) => p.house === h).map((p) => dict.planets[p.planet]).join(" · ");
 
   const showTip = (lon: number, r: number, lines: string[]) => {
     const { x, y } = pt(lon, r);
@@ -192,19 +192,21 @@ export function BirthChartWheel({
               opacity={0.09}
             />
             <line x1={div1.x} y1={div1.y} x2={div2.x} y2={div2.y} stroke="#C9A84C" strokeWidth="0.5" opacity="0.5" />
-            <text
-              x={g.x}
-              y={g.y}
-              fontSize={21}
-              fill="#E8C97A"
-              textAnchor="middle"
-              dominantBaseline="central"
-              className="font-display"
+            <g
+              transform={`translate(${g.x} ${g.y}) translate(-11 -11)`}
               filter={`url(#wglow-${uid})`}
               opacity={0.95}
             >
-              {z.glyph}
-            </text>
+              <path
+                d={SIGN_PATHS[z.key]}
+                fill="none"
+                stroke="#E8C97A"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                transform="scale(0.92)"
+              />
+            </g>
           </g>
         );
       })}
@@ -333,18 +335,23 @@ export function BirthChartWheel({
               filter={isActive ? `url(#wglowsoft-${uid})` : undefined}
               style={{ transition: "stroke 0.25s" }}
             />
-            <text
-              x={g.x} y={g.y}
-              fontSize={isActive ? 18 : 16}
-              fill={isActive ? "#E8C97A" : "#C9A84C"}
-              textAnchor="middle"
-              dominantBaseline="central"
-              className="font-display"
+            <g
+              transform={`translate(${g.x} ${g.y}) scale(${isActive ? 0.92 : 0.82}) translate(-12 -12)`}
               pointerEvents="none"
               filter={isActive ? `url(#wglow-${uid})` : undefined}
             >
-              {PLANET_GLYPHS[p.planet]}
-            </text>
+              <path
+                d={PLANET_PATHS[p.planet].d}
+                fill="none"
+                stroke={isActive ? "#E8C97A" : "#C9A84C"}
+                strokeWidth={1.7}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {PLANET_PATHS[p.planet].dots?.map(([cx, cy, r], di) => (
+                <circle key={di} cx={cx} cy={cy} r={r} fill={isActive ? "#E8C97A" : "#C9A84C"} />
+              ))}
+            </g>
             {p.isRetrograde && (
               <text x={g.x + 12} y={g.y - 10} fontSize={8} fill="#E8A94C" textAnchor="middle" pointerEvents="none">
                 ℞
@@ -359,7 +366,7 @@ export function BirthChartWheel({
                 onPlanetHover?.(p.planet);
                 showTip(p.longitude, r, [
                   dict.planets[p.planet],
-                  `${ZODIAC[Math.floor(norm360(p.longitude) / 30)].glyph} ${p.degree}°${String(p.minutes).padStart(2, "0")}'`,
+                  `${dict.zodiac.names[p.sign]} ${p.degree}°${String(p.minutes).padStart(2, "0")}'`,
                   `${dict.common.house} ${ROMAN[p.house - 1]}${p.isRetrograde ? " · ℞" : ""}`,
                 ]);
               }}

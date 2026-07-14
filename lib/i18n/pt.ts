@@ -462,6 +462,12 @@ export const pt: Dict = {
     reversedShort: "Invertida",
     empty: "Nada encontrado — tente outro termo.",
     house: "Casa",
+    filterAll: "Todos",
+    famLuminaries: "Luminares",
+    famPersonal: "Pessoais",
+    famSocial: "Sociais",
+    famOuter: "Transpessoais",
+    famPoints: "Pontos",
   },
 
   learn: {

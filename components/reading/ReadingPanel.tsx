@@ -110,7 +110,10 @@ export function ReadingPanel({ sign, dateLabel, content, loading, canGoNext, onP
               <div className="h-4 w-5/6 animate-pulse bg-white/5" />
             </div>
           ) : (
-            <p className="mt-8 leading-[1.8] text-[var(--text-secondary-color)]" style={{ fontFamily: "var(--font-display)", fontWeight: 300, fontSize: "18px" }}>
+            <p
+              className="mt-8 text-[15px] leading-[1.85] text-[var(--text-primary-color)]/92"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               {content?.[tab]}
             </p>
           )}

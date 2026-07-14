@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Sparkles, ArrowRight, Heart, Users, Briefcase, Home } from "lucide-react";
-import { Card, Button, Explainer, SignGlyph, PlanetSymbol, type ZodiacSign } from "@/components/ui";
+import { Card, Button, Explainer, SignGlyph, PlanetSymbol, AiProse, type ZodiacSign } from "@/components/ui";
 import type { SynastryAspect, SynastryType } from "@/lib/astrology/synastry";
 import type { Planet } from "@/lib/astrology";
 import { useI18n } from "@/components/i18n/I18nProvider";
@@ -299,10 +299,7 @@ export function SynastryClient({ initialA }: { initialA: Person }) {
 
           {(interp || interpLoading) && (
             <Card className="mt-6 p-7">
-              <p className="leading-[1.8] text-[var(--text-secondary-color)]" style={{ fontFamily: "var(--font-display)", fontWeight: 300, fontSize: "17px" }}>
-                {interp}
-                {interpLoading && <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[var(--gold)]/60 align-middle" />}
-              </p>
+              <AiProse text={interp} loading={interpLoading} />
             </Card>
           )}
         </div>

@@ -462,6 +462,12 @@ export const en = {
     reversedShort: "Reversed",
     empty: "Nothing found — try another term.",
     house: "House",
+    filterAll: "All",
+    famLuminaries: "Luminaries",
+    famPersonal: "Personal",
+    famSocial: "Social",
+    famOuter: "Transpersonal",
+    famPoints: "Points",
   },
 
   learn: {

@@ -4,6 +4,7 @@ import { useId } from "react";
 import type { Suit, TarotCard } from "@/lib/tarot/deck";
 import { ROMAN_MAJOR, RANK_THEMES } from "@/lib/tarot/deck";
 import { useI18n } from "@/components/i18n/I18nProvider";
+import { MajorScene } from "./majorArt";
 
 /* Card canvas: 180 × 300 units, scaled by `width`. */
 const W = 180;
@@ -182,30 +183,9 @@ export function TarotCardArt({ card, reversed = false, width = 150, dimmed = fal
               {ROMAN_MAJOR(card.number)}
             </text>
             <line x1={CX - 22} y1="42" x2={CX + 22} y2="42" stroke="#C9A84C" strokeWidth="0.5" opacity="0.6" />
-            <circle cx={CX} cy={H / 2 - 8} r="43" fill="none" stroke="#C9A84C" strokeWidth="0.55" opacity="0.55" />
-            <circle cx={CX} cy={H / 2 - 8} r="34" fill="none" stroke="#C9A84C" strokeWidth="0.4" opacity="0.35" />
-            {Array.from({ length: 8 }).map((_, i) => {
-              const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
-              return (
-                <line
-                  key={i}
-                  x1={CX + Math.cos(a) * 34} y1={H / 2 - 8 + Math.sin(a) * 34}
-                  x2={CX + Math.cos(a) * 43} y2={H / 2 - 8 + Math.sin(a) * 43}
-                  stroke="#C9A84C" strokeWidth="0.4" opacity="0.5"
-                />
-              );
-            })}
-            <text
-              x={CX} y={H / 2 - 8}
-              fontSize="34"
-              fill="#E8C97A"
-              textAnchor="middle"
-              dominantBaseline="central"
-              className="font-display"
-              filter={`url(#tg-${uid})`}
-            >
-              ✦
-            </text>
+            <g transform="translate(40 56)" filter={`url(#tg-${uid})`}>
+              <MajorScene n={card.number} />
+            </g>
           </>
         ) : card.number <= 10 ? (
           <>

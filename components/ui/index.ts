@@ -16,3 +16,4 @@ export {
 export type { Planet } from "./PlanetGlyph";
 export { SignGlyph, PlanetSymbol, SIGN_PATHS, PLANET_PATHS } from "./glyphs";
 export { Explainer } from "./Explainer";
+export { AiProse } from "./AiProse";

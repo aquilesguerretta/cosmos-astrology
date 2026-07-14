@@ -8,10 +8,48 @@ import { SIGN_ENTRIES, PLANET_ENTRIES, HOUSE_ENTRIES, ASPECT_ENTRIES } from "@/l
 import { FULL_DECK, SUIT_INFO, NUMBER_THEMES, RANK_THEMES, type TarotCard } from "@/lib/tarot/deck";
 import { TarotCardArt } from "@/components/tarot";
 import { ASPECT_META } from "@/components/chart";
-import { SIGN_ELEMENT, SIGN_MODALITY } from "@/lib/astrology";
+import { SIGN_ELEMENT, SIGN_MODALITY, type Planet } from "@/lib/astrology";
 import { cn } from "@/lib/utils";
 
 type Tab = "signs" | "planets" | "houses" | "aspects" | "tarot";
+
+type PlanetFam = "luminaries" | "personal" | "social" | "outer" | "points";
+const PLANET_FAMILY: Record<PlanetFam, Planet[]> = {
+  luminaries: ["sun", "moon"],
+  personal: ["mercury", "venus", "mars"],
+  social: ["jupiter", "saturn"],
+  outer: ["uranus", "neptune", "pluto"],
+  points: ["northNode"],
+};
+
+function FilterChips<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { key: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {options.map((o) => (
+        <button
+          key={o.key}
+          onClick={() => onChange(o.key)}
+          className={cn(
+            "border px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] transition",
+            value === o.key
+              ? "border-[var(--gold)]/70 bg-[var(--gold)]/8 text-[var(--gold)]"
+              : "border-[var(--gold)]/12 text-[var(--text-muted-color)] hover:text-[var(--text-secondary-color)]",
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
 function Row({
@@ -60,10 +98,17 @@ export function LibraryClient() {
   const [tab, setTab] = useState<Tab>("signs");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [signElement, setSignElement] = useState<"all" | "fire" | "earth" | "air" | "water">("all");
+  const [signModality, setSignModality] = useState<"all" | "cardinal" | "fixed" | "mutable">("all");
+  const [planetFam, setPlanetFam] = useState<"all" | PlanetFam>("all");
+  const [aspectNature, setAspectNature] = useState<"all" | "harmonious" | "tense">("all");
+  const [tarotArc, setTarotArc] = useState<"all" | "major" | "wands" | "cups" | "swords" | "pentacles">("all");
 
   const q = query.trim().toLowerCase();
   const matches = (...texts: string[]) => !q || texts.some((x) => x.toLowerCase().includes(q));
   const toggle = (id: string) => setOpenId((cur) => (cur === id ? null : id));
+
+  const ALL = { key: "all" as const, label: t.filterAll };
 
   const TABS: { key: Tab; label: string }[] = [
     { key: "signs", label: t.tabSigns },
@@ -74,10 +119,32 @@ export function LibraryClient() {
   ];
 
   const tarotFiltered = useMemo(
-    () => FULL_DECK.filter((c) => matches(c.name[locale], c.keywords[locale].up.join(" "))),
+    () =>
+      FULL_DECK.filter((c) => {
+        if (tarotArc === "major" && c.arcana !== "major") return false;
+        if (tarotArc !== "all" && tarotArc !== "major" && c.suit !== tarotArc) return false;
+        return matches(c.name[locale], c.keywords[locale].up.join(" "));
+      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [q, locale],
+    [q, locale, tarotArc],
   );
+
+  const signsFiltered = SIGN_ENTRIES.filter((s) => {
+    if (signElement !== "all" && SIGN_ELEMENT[s.sign] !== signElement) return false;
+    if (signModality !== "all" && SIGN_MODALITY[s.sign] !== signModality) return false;
+    return matches(dict.zodiac.names[s.sign], s.keywords[locale].join(" "));
+  });
+
+  const planetsFiltered = PLANET_ENTRIES.filter((p) => {
+    if (planetFam !== "all" && !PLANET_FAMILY[planetFam].includes(p.planet)) return false;
+    return matches(dict.planets[p.planet], p.keywords[locale].join(" "));
+  });
+
+  const aspectsFiltered = ASPECT_ENTRIES.filter((a) => {
+    if (aspectNature === "harmonious" && a.nature !== "harmonious") return false;
+    if (aspectNature === "tense" && a.nature === "harmonious") return false;
+    return matches(dict.aspects[a.type]);
+  });
 
   const renderTarotCardRow = (c: TarotCard) => (
     <Row
@@ -143,10 +210,73 @@ export function LibraryClient() {
         />
       </div>
 
+      {/* per-tab filters */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+        {tab === "signs" && (
+          <>
+            <FilterChips
+              options={[ALL,
+                { key: "fire", label: dict.elements.fire },
+                { key: "earth", label: dict.elements.earth },
+                { key: "air", label: dict.elements.air },
+                { key: "water", label: dict.elements.water },
+              ]}
+              value={signElement}
+              onChange={(v) => { setSignElement(v); setOpenId(null); }}
+            />
+            <FilterChips
+              options={[ALL,
+                { key: "cardinal", label: dict.modalities.cardinal },
+                { key: "fixed", label: dict.modalities.fixed },
+                { key: "mutable", label: dict.modalities.mutable },
+              ]}
+              value={signModality}
+              onChange={(v) => { setSignModality(v); setOpenId(null); }}
+            />
+          </>
+        )}
+        {tab === "planets" && (
+          <FilterChips
+            options={[ALL,
+              { key: "luminaries", label: t.famLuminaries },
+              { key: "personal", label: t.famPersonal },
+              { key: "social", label: t.famSocial },
+              { key: "outer", label: t.famOuter },
+              { key: "points", label: t.famPoints },
+            ]}
+            value={planetFam}
+            onChange={(v) => { setPlanetFam(v); setOpenId(null); }}
+          />
+        )}
+        {tab === "aspects" && (
+          <FilterChips
+            options={[ALL,
+              { key: "harmonious", label: t.natureHarmonious },
+              { key: "tense", label: t.natureTense },
+            ]}
+            value={aspectNature}
+            onChange={(v) => { setAspectNature(v); setOpenId(null); }}
+          />
+        )}
+        {tab === "tarot" && (
+          <FilterChips
+            options={[ALL,
+              { key: "major", label: t.majorArcana },
+              { key: "wands", label: SUIT_INFO.wands.name[locale] },
+              { key: "cups", label: SUIT_INFO.cups.name[locale] },
+              { key: "swords", label: SUIT_INFO.swords.name[locale] },
+              { key: "pentacles", label: SUIT_INFO.pentacles.name[locale] },
+            ]}
+            value={tarotArc}
+            onChange={(v) => { setTarotArc(v); setOpenId(null); }}
+          />
+        )}
+      </div>
+
       <div className="mt-8 space-y-3">
         {/* SIGNS */}
         {tab === "signs" &&
-          SIGN_ENTRIES.filter((s) => matches(dict.zodiac.names[s.sign], s.keywords[locale].join(" "))).map((s) => (
+          signsFiltered.map((s) => (
             <Row
               key={s.sign}
               open={openId === s.sign}
@@ -171,7 +301,7 @@ export function LibraryClient() {
 
         {/* PLANETS */}
         {tab === "planets" &&
-          PLANET_ENTRIES.filter((p) => matches(dict.planets[p.planet], p.keywords[locale].join(" "))).map((p) => (
+          planetsFiltered.map((p) => (
             <Row
               key={p.planet}
               open={openId === p.planet}
@@ -220,7 +350,7 @@ export function LibraryClient() {
 
         {/* ASPECTS */}
         {tab === "aspects" &&
-          ASPECT_ENTRIES.filter((a) => matches(dict.aspects[a.type])).map((a) => (
+          aspectsFiltered.map((a) => (
             <Row
               key={a.type}
               open={openId === a.type}
@@ -286,7 +416,9 @@ export function LibraryClient() {
           </>
         )}
 
-        {((tab === "signs" && !SIGN_ENTRIES.some((s) => matches(dict.zodiac.names[s.sign], s.keywords[locale].join(" ")))) ||
+        {((tab === "signs" && signsFiltered.length === 0) ||
+          (tab === "planets" && planetsFiltered.length === 0) ||
+          (tab === "aspects" && aspectsFiltered.length === 0) ||
           (tab === "tarot" && tarotFiltered.length === 0)) && (
           <p className="py-8 text-center text-sm text-[var(--text-muted-color)]">{t.empty}</p>
         )}

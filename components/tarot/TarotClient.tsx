@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Sparkles, Layers, Hand } from "lucide-react";
-import { Card, Button } from "@/components/ui";
+import { Card, Button, AiProse } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { FULL_DECK, type TarotCard } from "@/lib/tarot/deck";
 import { SPREADS, type SpreadId } from "@/lib/tarot/spreads";
@@ -184,19 +184,29 @@ export function TarotClient() {
             )}
           </div>
 
-          {drawn && (
-            <div className={cn("mt-8 grid justify-items-center gap-x-4 gap-y-6", spreadId === "cross" ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" : "grid-cols-1 sm:grid-cols-3 max-w-xl")}>
-              {drawn.map((d, i) => (
-                <div key={`${d.card.id}-${i}`} className="flex flex-col items-center gap-2.5">
+          {drawn && (() => {
+            const reveal = (i: number) =>
+              setDrawn((cur) => cur!.map((x, xi) => (xi === i ? { ...x, revealed: true } : x)));
+            const revealPair = () =>
+              setDrawn((cur) => cur!.map((x, xi) => (xi <= 1 ? { ...x, revealed: true } : x)));
+
+            const slot = (i: number, width: number, area?: string) => {
+              const d = drawn[i];
+              return (
+                <div
+                  key={`${d.card.id}-${i}`}
+                  style={area ? { gridArea: area } : undefined}
+                  className="flex flex-col items-center gap-2.5"
+                >
                   <FlipCard
                     card={d.card}
                     reversed={d.reversed}
                     revealed={d.revealed}
-                    width={spreadId === "cross" ? 118 : 138}
-                    onReveal={() => setDrawn((cur) => cur!.map((x, xi) => (xi === i ? { ...x, revealed: true } : x)))}
+                    width={width}
+                    onReveal={() => reveal(i)}
                   />
                   <p className="label-caps max-w-[140px] text-center text-[10px] leading-snug">
-                    {spread.positions[i].name[locale]}
+                    {i + 1} · {spread.positions[i].name[locale]}
                   </p>
                   {d.revealed && d.reversed && (
                     <span className="border border-[var(--warning)]/50 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-[var(--warning)]">
@@ -204,9 +214,78 @@ export function TarotClient() {
                     </span>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            };
+
+            if (spreadId !== "cross") {
+              return (
+                <div className="mt-8 grid max-w-xl grid-cols-1 justify-items-center gap-x-4 gap-y-6 sm:grid-cols-3">
+                  {drawn.map((_, i) => slot(i, 138))}
+                </div>
+              );
+            }
+
+            // Celtic Cross — true cross + staff (read bottom-up) on md+.
+            const CW = 104;
+            const centerCell = (
+              <div key="center" style={{ gridArea: "center" }} className="flex flex-col items-center gap-2.5">
+                <div className="relative" style={{ width: CW * 1.7, height: (CW * 300) / 180 }}>
+                  <div className="absolute inset-0 grid place-items-center">
+                    <FlipCard
+                      card={drawn[0].card}
+                      reversed={drawn[0].reversed}
+                      revealed={drawn[0].revealed}
+                      width={CW}
+                      onReveal={revealPair}
+                    />
+                  </div>
+                  <div className="absolute inset-0 grid rotate-90 place-items-center">
+                    <FlipCard
+                      card={drawn[1].card}
+                      reversed={drawn[1].reversed}
+                      revealed={drawn[1].revealed}
+                      width={CW}
+                      onReveal={revealPair}
+                    />
+                  </div>
+                </div>
+                <p className="label-caps max-w-[190px] text-center text-[10px] leading-snug">
+                  1 · {spread.positions[0].name[locale]}
+                  {drawn[0].revealed && drawn[0].reversed ? ` (${t.reversed})` : ""}
+                </p>
+                <p className="label-caps max-w-[190px] text-center text-[10px] leading-snug text-[var(--text-muted-color)]">
+                  2 · {spread.positions[1].name[locale]}
+                  {drawn[1].revealed && drawn[1].reversed ? ` (${t.reversed})` : ""}
+                </p>
+              </div>
+            );
+
+            return (
+              <>
+                <div
+                  className="mt-10 hidden justify-items-center gap-x-4 gap-y-8 md:grid"
+                  style={{
+                    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                    gridTemplateAreas:
+                      "'. crown . outcome' 'past center future hopes' '. root . env' '. . . self'",
+                  }}
+                >
+                  {slot(4, CW, "crown")}
+                  {slot(9, CW, "outcome")}
+                  {slot(3, CW, "past")}
+                  {centerCell}
+                  {slot(5, CW, "future")}
+                  {slot(8, CW, "hopes")}
+                  {slot(2, CW, "root")}
+                  {slot(7, CW, "env")}
+                  {slot(6, CW, "self")}
+                </div>
+                <div className="mt-8 grid grid-cols-2 justify-items-center gap-x-4 gap-y-6 sm:grid-cols-3 md:hidden">
+                  {drawn.map((_, i) => slot(i, 112))}
+                </div>
+              </>
+            );
+          })()}
 
           {allRevealed && (
             <div className="mt-8">
@@ -265,13 +344,7 @@ export function TarotClient() {
             <Sparkles size={14} className="text-[var(--gold)]" />
             <p className="label-caps">{t.interpretation}</p>
           </div>
-          <p
-            className="whitespace-pre-line leading-[1.85] text-[var(--text-secondary-color)]"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 300, fontSize: "17.5px" }}
-          >
-            {reading}
-            {loading && <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[var(--gold)]/60 align-middle" />}
-          </p>
+          <AiProse text={reading} loading={loading} />
         </Card>
       )}
     </>

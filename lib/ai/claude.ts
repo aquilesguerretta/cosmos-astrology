@@ -1,7 +1,27 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-/** Model is overridable via env; defaults to a current Sonnet. */
-export const CLAUDE_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
+/** Default: Sonnet. Opus and Fable are blocked — only Haiku and Sonnet are allowed. */
+const DEFAULT_MODEL = "claude-sonnet-4-5";
+
+function isAllowedModel(model: string): boolean {
+  const m = model.toLowerCase();
+  if (m.includes("opus") || m.includes("fable")) return false;
+  return m.includes("sonnet") || m.includes("haiku");
+}
+
+function resolveModel(): string {
+  const env = process.env.ANTHROPIC_MODEL?.trim();
+  if (!env) return DEFAULT_MODEL;
+  if (!isAllowedModel(env)) {
+    console.warn(
+      `[Cosmos AI] Model "${env}" is not allowed (Opus/Fable blocked; use Haiku or Sonnet). Falling back to ${DEFAULT_MODEL}.`,
+    );
+    return DEFAULT_MODEL;
+  }
+  return env;
+}
+
+export const CLAUDE_MODEL = resolveModel();
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
 export const aiEnabled = Boolean(apiKey);

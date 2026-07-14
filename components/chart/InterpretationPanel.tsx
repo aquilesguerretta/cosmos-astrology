@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import type { ChartData, PlanetPosition } from "@/lib/astrology";
-import { Card, PlanetSymbol } from "@/components/ui";
+import { Card, PlanetSymbol, AiProse } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import type { Dict } from "@/lib/i18n/en";
 
@@ -73,13 +73,9 @@ function InterpretationCard({ p, chart }: { p: PlanetPosition; chart: ChartData 
         <span className="text-xs text-[var(--gold)]/70">{open ? "—" : "+"}</span>
       </button>
       {open && (
-        <p
-          className="animate-fade-up mt-4 leading-[1.75] text-[var(--text-secondary-color)]"
-          style={{ fontFamily: "var(--font-display)", fontWeight: 300, fontSize: "17px" }}
-        >
-          {text}
-          {loading && <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[var(--gold)]/60 align-middle" />}
-        </p>
+        <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
+          <AiProse text={text} loading={loading} />
+        </div>
       )}
     </Card>
   );

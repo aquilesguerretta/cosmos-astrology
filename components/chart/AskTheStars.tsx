@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sparkles, Send } from "lucide-react";
 import { useI18n } from "@/components/i18n/I18nProvider";
+import { AiProse } from "@/components/ui";
 
 export function AskTheStars({ context }: { context: string }) {
   const { dict } = useI18n();
@@ -62,13 +63,9 @@ export function AskTheStars({ context }: { context: string }) {
         </button>
       </form>
       {(answer || loading) && (
-        <p
-          className="animate-fade-up mt-5 leading-[1.8] text-[var(--text-secondary-color)]"
-          style={{ fontFamily: "var(--font-display)", fontWeight: 300, fontSize: "17px" }}
-        >
-          {answer}
-          {loading && <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[var(--gold)]/60 align-middle" />}
-        </p>
+        <div className="mt-5 border-t border-[var(--border-subtle)] pt-5">
+          <AiProse text={answer} loading={loading} />
+        </div>
       )}
     </section>
   );

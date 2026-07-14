@@ -6,6 +6,8 @@ import { moonPhase, activeTransits } from "@/lib/transits";
 import { getDict, intlTag } from "@/lib/i18n";
 import { Card, SignGlyph, PlanetSymbol } from "@/components/ui";
 import { Reveal } from "@/components/motion/Reveal";
+import { AskTheStars } from "@/components/chart";
+import { buildChartSummary, buildDailyContext } from "@/lib/ai/context";
 import { Greeting, MoonPhase, MoonPhaseDescription, PlanetStrip, ActiveTransits } from "@/components/dashboard";
 
 export const metadata = { title: "Sanctum" };
@@ -39,6 +41,13 @@ export default async function SanctumPage() {
     `${t.overviewIn} ${dict.zodiac.names[tMerc.sign]} — ${tMerc.isRetrograde ? t.adviceRx : t.adviceDirect}`;
 
   const natalSun = natal.planets.find((p) => p.planet === "sun")!;
+
+  // Full-chart grounding for "ask about your day": every natal placement +
+  // today's sky measured against it.
+  const dailyContext =
+    buildChartSummary(natal, dict, user.name || dict.common.traveler) +
+    "\n" +
+    buildDailyContext(natal, transit, dict, dateLabel);
 
   const ACTIONS = [
     { title: t.actionChartT, caption: t.actionChartC, href: "/chart", icon: Compass, accent: <PlanetSymbol planet="sun" size={20} strokeWidth={1.6} /> },
@@ -141,6 +150,9 @@ export default async function SanctumPage() {
           <MoonPhaseDescription info={phase} />
         </Card>
       </div>
+
+      {/* Ask about your day — grounded in the FULL natal chart + today's sky */}
+      <AskTheStars context={dailyContext} title={t.askDayTitle} placeholder={t.askDayPlaceholder} />
     </div>
   );
 }

@@ -107,9 +107,15 @@ export async function generateJSON<T>(opts: {
       .filter((b): b is Anthropic.TextBlock => b.type === "text")
       .map((b) => b.text)
       .join("");
-    const json = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+    // Robust extraction: strip fences, then take the outermost {...} block —
+    // survives preambles, trailing prose and code-fence variations.
+    const stripped = text.replace(/```(?:json)?/gi, "").trim();
+    const start = stripped.indexOf("{");
+    const end = stripped.lastIndexOf("}");
+    const json = start >= 0 && end > start ? stripped.slice(start, end + 1) : stripped;
     return JSON.parse(json) as T;
-  } catch {
+  } catch (err) {
+    console.warn("[Cosmos AI] generateJSON fell back:", err instanceof Error ? err.message : err);
     return opts.fallback;
   }
 }

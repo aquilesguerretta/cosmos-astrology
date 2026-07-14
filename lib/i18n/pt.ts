@@ -134,6 +134,17 @@ export const pt: Dict = {
     born: "Nascimento",
     place: "Local",
     revealSanctum: "Revelar meu Santuário",
+    welcomeLabel: "A Iniciação",
+    welcomeTitle1: "Antes que o céu",
+    welcomeTitle2: "se abra",
+    welcomeSub:
+      "O Cosmos lê um céu real para um momento real — o seu. Escolha como atravessar o limiar.",
+    pathLoginT: "Entrar",
+    pathLoginD: "Volte aos seus mapas e leituras, onde você estiver.",
+    pathRegisterT: "Criar conta",
+    pathRegisterD: "Guarde seus dados natais, mapas salvos e progresso.",
+    pathGuestT: "Começar sem conta",
+    pathGuestD: "Inscreva seu momento de nascimento e explore livremente — a conta pode vir depois.",
   },
 
   sanctum: {
@@ -164,6 +175,8 @@ export const pt: Dict = {
     actionLearnC: "Aprenda o método",
     transitsLabel: "Trânsitos ativos",
     moonLabel: "A Lua esta noite",
+    askDayTitle: "Pergunte sobre o seu dia",
+    askDayPlaceholder: "O que o céu de hoje pede de mim?",
   },
 
   chart: {

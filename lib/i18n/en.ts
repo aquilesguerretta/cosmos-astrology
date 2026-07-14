@@ -133,6 +133,17 @@ export const en = {
     born: "Born",
     place: "Place",
     revealSanctum: "Reveal my Sanctum",
+    welcomeLabel: "The Initiation",
+    welcomeTitle1: "Before the sky",
+    welcomeTitle2: "opens",
+    welcomeSub:
+      "Cosmos reads a real sky for a real moment — yours. Choose how you wish to cross the threshold.",
+    pathLoginT: "Sign in",
+    pathLoginD: "Return to your charts and readings, wherever you are.",
+    pathRegisterT: "Create an account",
+    pathRegisterD: "Keep your natal data, saved charts and progress.",
+    pathGuestT: "Begin without an account",
+    pathGuestD: "Inscribe your birth moment and explore freely — an account can come later.",
   },
 
   sanctum: {
@@ -164,6 +175,8 @@ export const en = {
     actionLearnC: "Learn the method",
     transitsLabel: "Active transits",
     moonLabel: "The Moon tonight",
+    askDayTitle: "Ask about your day",
+    askDayPlaceholder: "What does today's sky ask of me?",
   },
 
   chart: {

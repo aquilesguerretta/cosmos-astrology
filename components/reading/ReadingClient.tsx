@@ -18,7 +18,7 @@ function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ReadingClient({ userSign }: { userSign: ZodiacSign }) {
+export function ReadingClient({ userSign, baseContext = "" }: { userSign: ZodiacSign; baseContext?: string }) {
   const { locale, dict } = useI18n();
   const [selected, setSelected] = useState<ZodiacSign>(userSign);
   const [date, setDate] = useState<string>(todayISO);
@@ -64,7 +64,9 @@ export function ReadingClient({ userSign }: { userSign: ZodiacSign }) {
           onNext={() => canGoNext && setDate((dd) => shiftISO(dd, 1))}
         />
       </div>
-      <AskTheStars context={`${dict.reading.askContext}: ${dict.zodiac.names[selected]} · ${date}`} />
+      <AskTheStars
+        context={`${baseContext}\n${dict.reading.askContext}: ${dict.zodiac.names[selected]} · ${date}`}
+      />
     </>
   );
 }

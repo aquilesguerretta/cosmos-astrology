@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/user";
 import { getDict, intlTag } from "@/lib/i18n";
 import { Explainer, SignGlyph, PlanetSymbol } from "@/components/ui";
 import { ChartView, InterpretationPanel, AskTheStars } from "@/components/chart";
+import { buildChartSummary } from "@/lib/ai/context";
 
 export const metadata = { title: "Natal Chart" };
 
@@ -23,13 +24,7 @@ export default async function ChartPage() {
     timeZone: "UTC",
   });
 
-  const summary =
-    `${displayName} — ${dict.planets.sun} ${dict.zodiac.names[sun.sign]} (${dict.common.house} ${sun.house}), ` +
-    `${dict.planets.moon} ${dict.zodiac.names[moon.sign]} (${dict.common.house} ${moon.house}), ` +
-    `${dict.profile.ascendant} ${dict.zodiac.names[ascSign]}. ` +
-    chart.planets
-      .map((p) => `${dict.planets[p.planet]} ${dict.zodiac.names[p.sign]} H${p.house}`)
-      .join(", ");
+  const summary = buildChartSummary(chart, dict, displayName);
 
   return (
     <div className="w-full max-w-[1400px] px-4 py-10 sm:px-6 md:px-10">

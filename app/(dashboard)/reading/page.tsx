@@ -1,15 +1,30 @@
 import { calculateNatalChart } from "@/lib/astrology";
 import { getCurrentUser } from "@/lib/user";
-import { getDict } from "@/lib/i18n";
+import { getDict, intlTag } from "@/lib/i18n";
 import { Explainer } from "@/components/ui";
 import { ReadingClient } from "@/components/reading";
+import { buildChartSummary, buildDailyContext } from "@/lib/ai/context";
 
 export const metadata = { title: "Daily Reading" };
 
 export default async function ReadingPage() {
-  const [{ dict }, user] = await Promise.all([getDict(), getCurrentUser()]);
+  const [{ locale, dict }, user] = await Promise.all([getDict(), getCurrentUser()]);
   const chart = await calculateNatalChart(user.birth);
   const sun = chart.planets.find((p) => p.planet === "sun")!;
+
+  const now = new Date();
+  const transit = await calculateNatalChart({
+    date: now.toISOString().slice(0, 10),
+    time: "12:00",
+    lat: 0,
+    lng: 0,
+    utcOffset: 0,
+  });
+  const dateLabel = now.toLocaleDateString(intlTag(locale), { day: "numeric", month: "long", year: "numeric" });
+  const baseContext =
+    buildChartSummary(chart, dict, user.name || dict.common.traveler) +
+    "\n" +
+    buildDailyContext(chart, transit, dict, dateLabel);
 
   return (
     <div className="w-full max-w-[1280px] px-4 py-10 sm:px-6 md:px-10">
@@ -21,7 +36,7 @@ export default async function ReadingPage() {
         </h1>
       </header>
       <Explainer title={dict.reading.explainerTitle} body={dict.reading.explainer} className="mb-8" />
-      <ReadingClient userSign={sun.sign} />
+      <ReadingClient userSign={sun.sign} baseContext={baseContext} />
     </div>
   );
 }

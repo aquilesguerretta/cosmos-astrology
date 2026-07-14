@@ -5,7 +5,15 @@ import { Sparkles, Send } from "lucide-react";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { AiProse } from "@/components/ui";
 
-export function AskTheStars({ context }: { context: string }) {
+interface AskTheStarsProps {
+  context: string;
+  /** Overrides the default section title (dict.chart.askTitle). */
+  title?: string;
+  /** Overrides the default input placeholder (dict.chart.askPlaceholder). */
+  placeholder?: string;
+}
+
+export function AskTheStars({ context, title, placeholder }: AskTheStarsProps) {
   const { dict } = useI18n();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -40,7 +48,7 @@ export function AskTheStars({ context }: { context: string }) {
     <section className="mt-10">
       <div className="mb-4 flex items-center gap-3">
         <Sparkles size={14} className="text-[var(--gold)]" />
-        <p className="label-caps">{dict.chart.askTitle}</p>
+        <p className="label-caps">{title ?? dict.chart.askTitle}</p>
       </div>
       <form
         onSubmit={ask}
@@ -49,7 +57,7 @@ export function AskTheStars({ context }: { context: string }) {
         <input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder={dict.chart.askPlaceholder}
+          placeholder={placeholder ?? dict.chart.askPlaceholder}
           className="flex-1 bg-transparent text-[15px] italic text-[var(--text-primary-color)] outline-none placeholder:text-[var(--text-muted-color)]"
           style={{ fontFamily: "var(--font-display)" }}
         />

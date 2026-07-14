@@ -51,7 +51,7 @@ export async function GET(req: Request) {
   const content = await generateJSON<HoroscopeContent>({
     system: horoscopeSystem(locale),
     prompt: horoscopePrompt(locale, dict.zodiac.names[sign], date, transits),
-    maxTokens: 700,
+    maxTokens: 1100, // 8 fields × 2–3 sentences in PT overflows 700 and truncates the JSON
     fallback: horoscopeFallback(locale, dict.zodiac.names[sign]),
   });
 

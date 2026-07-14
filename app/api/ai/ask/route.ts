@@ -5,7 +5,8 @@ export async function POST(req: Request) {
   const locale = await getLocale();
   const body = await req.json().catch(() => ({}));
   const question = String(body.question ?? "").slice(0, 500).trim();
-  const context = String(body.context ?? "").slice(0, 2000);
+  // Full-chart daily context (all placements + today's sky) runs long.
+  const context = String(body.context ?? "").slice(0, 3500);
 
   if (!question) {
     return new Response("Ask the stars a question.", { status: 400 });
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
   const stream = streamCompletion({
     system: askSystem(locale),
     prompt: askPrompt(locale, question, context),
-    maxTokens: 320,
+    maxTokens: 450,
     fallback: askFallback(locale, question),
   });
 

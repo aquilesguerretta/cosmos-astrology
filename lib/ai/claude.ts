@@ -35,6 +35,11 @@ function getClient(): Anthropic | null {
 
 const encoder = new TextEncoder();
 
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 interface CompletionOpts {
   system: string;
   prompt: string;
@@ -43,48 +48,69 @@ interface CompletionOpts {
   fallback: string;
 }
 
-/**
- * Streams a Claude completion as a ReadableStream of UTF-8 chunks.
- * When ANTHROPIC_API_KEY is absent, streams the `fallback` word-by-word so the
- * UI behaves identically in local dev.
- */
-export function streamCompletion(opts: CompletionOpts): ReadableStream<Uint8Array> {
-  const c = getClient();
+interface ChatOpts {
+  system: string;
+  messages: ChatMessage[];
+  maxTokens?: number;
+  fallback: string;
+}
 
-  if (!c) {
-    const words = opts.fallback.split(/(\s+)/);
-    return new ReadableStream({
-      async start(controller) {
-        for (const w of words) {
-          controller.enqueue(encoder.encode(w));
-          await new Promise((r) => setTimeout(r, 12));
-        }
-        controller.close();
-      },
-    });
-  }
+/** Streams `fallback` word-by-word so the UI behaves the same without a key. */
+function fallbackStream(fallback: string): ReadableStream<Uint8Array> {
+  const words = fallback.split(/(\s+)/);
+  return new ReadableStream({
+    async start(controller) {
+      for (const w of words) {
+        controller.enqueue(encoder.encode(w));
+        await new Promise((r) => setTimeout(r, 12));
+      }
+      controller.close();
+    },
+  });
+}
 
+/** Streams a live Claude completion from a full message array. */
+function liveStream(
+  system: string,
+  messages: ChatMessage[],
+  maxTokens: number,
+): ReadableStream<Uint8Array> {
+  const c = getClient()!;
   return new ReadableStream({
     async start(controller) {
       try {
-        const stream = c.messages.stream({
-          model: CLAUDE_MODEL,
-          max_tokens: opts.maxTokens ?? 400,
-          system: opts.system,
-          messages: [{ role: "user", content: opts.prompt }],
-        });
+        const stream = c.messages.stream({ model: CLAUDE_MODEL, max_tokens: maxTokens, system, messages });
         for await (const event of stream) {
           if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
             controller.enqueue(encoder.encode(event.delta.text));
           }
         }
         controller.close();
-      } catch {
+      } catch (err) {
+        console.warn("[Cosmos AI] stream error:", err instanceof Error ? err.message : err);
         controller.enqueue(encoder.encode("The stars are clouded just now — please try again shortly."));
         controller.close();
       }
     },
   });
+}
+
+/**
+ * Streams a single-turn Claude completion as UTF-8 chunks. When
+ * ANTHROPIC_API_KEY is absent, streams the `fallback` word-by-word.
+ */
+export function streamCompletion(opts: CompletionOpts): ReadableStream<Uint8Array> {
+  if (!getClient()) return fallbackStream(opts.fallback);
+  return liveStream(opts.system, [{ role: "user", content: opts.prompt }], opts.maxTokens ?? 400);
+}
+
+/**
+ * Streams a multi-turn conversation (for follow-up chat). `messages` must
+ * alternate user/assistant and start with a user turn.
+ */
+export function streamChat(opts: ChatOpts): ReadableStream<Uint8Array> {
+  if (!getClient()) return fallbackStream(opts.fallback);
+  return liveStream(opts.system, opts.messages, opts.maxTokens ?? 800);
 }
 
 /** One-shot JSON completion. Returns `fallback` when no key or on parse error. */

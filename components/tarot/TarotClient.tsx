@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Layers, Hand } from "lucide-react";
+import { Sparkles, Layers, Hand, Send, CornerDownRight } from "lucide-react";
 import { Card, Button, AiProse } from "@/components/ui";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { FULL_DECK, type TarotCard } from "@/lib/tarot/deck";
@@ -12,6 +12,8 @@ import { CardPicker, type PickedCard } from "./CardPicker";
 import { cn } from "@/lib/utils";
 
 type Mode = "draw" | "physical";
+type ChatMsg = { role: "user" | "assistant"; content: string };
+type CardRef = { id: string; position: string; reversed: boolean };
 
 interface DrawnCard {
   card: TarotCard;
@@ -41,41 +43,51 @@ export function TarotClient() {
   const [question, setQuestion] = useState("");
   const [drawn, setDrawn] = useState<DrawnCard[] | null>(null);
   const [picks, setPicks] = useState<(PickedCard | null)[]>([]);
-  const [reading, setReading] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [thread, setThread] = useState<ChatMsg[]>([]);
+  const [chatting, setChatting] = useState(false);
+  const [followUp, setFollowUp] = useState("");
+  const [activeCards, setActiveCards] = useState<CardRef[] | null>(null);
 
   const spread = SPREADS[spreadId];
   const spreadName =
     spreadId === "single" ? t.spreadSingle : spreadId === "three" ? t.spreadThree : t.spreadCross;
+  const initialLoading = chatting && thread.length === 1;
+
+  function resetReading() {
+    setThread([]);
+    setFollowUp("");
+    setActiveCards(null);
+  }
 
   function selectSpread(id: SpreadId) {
     setSpreadId(id);
     setDrawn(null);
     setPicks(Array.from({ length: SPREADS[id].positions.length }, () => null));
-    setReading("");
+    resetReading();
   }
 
   function draw() {
     setDrawn(shuffleDraw(spread.positions.length));
-    setReading("");
+    resetReading();
   }
 
   const allRevealed = drawn !== null && drawn.every((d) => d.revealed);
   const allPicked = picks.length === spread.positions.length && picks.every(Boolean);
 
-  async function interpret() {
-    const source =
-      mode === "draw"
-        ? drawn?.map((d, i) => ({ id: d.card.id, position: spread.positions[i].name[locale], reversed: d.reversed }))
-        : picks.map((p, i) => ({ id: p!.card.id, position: spread.positions[i].name[locale], reversed: p!.reversed }));
-    if (!source) return;
-    setLoading(true);
-    setReading("");
+  /** Appends a fresh assistant slot and streams the response into it. */
+  async function runStream(history: ChatMsg[], cards: CardRef[]) {
+    setChatting(true);
+    setThread((cur) => [...cur, { role: "assistant", content: "" }]);
     try {
       const res = await fetch("/api/tarot/interpret", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question.trim() || undefined, spread: spreadName, cards: source }),
+        body: JSON.stringify({
+          question: question.trim() || undefined,
+          spread: spreadName,
+          cards,
+          messages: history,
+        }),
       });
       if (!res.body) return;
       const reader = res.body.getReader();
@@ -83,11 +95,39 @@ export function TarotClient() {
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
-        setReading((r) => r + dec.decode(value, { stream: true }));
+        const chunk = dec.decode(value, { stream: true });
+        setThread((cur) => {
+          const copy = cur.slice();
+          const last = copy[copy.length - 1];
+          copy[copy.length - 1] = { role: "assistant", content: last.content + chunk };
+          return copy;
+        });
       }
     } finally {
-      setLoading(false);
+      setChatting(false);
     }
+  }
+
+  function interpret() {
+    const source: CardRef[] | undefined =
+      mode === "draw"
+        ? drawn?.map((d, i) => ({ id: d.card.id, position: spread.positions[i].name[locale], reversed: d.reversed }))
+        : picks.map((p, i) => ({ id: p!.card.id, position: spread.positions[i].name[locale], reversed: p!.reversed }));
+    if (!source || chatting) return;
+    setActiveCards(source);
+    setThread([]);
+    setFollowUp("");
+    runStream([], source);
+  }
+
+  function askFollowUp(e: React.FormEvent) {
+    e.preventDefault();
+    const qy = followUp.trim();
+    if (!qy || chatting || !activeCards) return;
+    setFollowUp("");
+    const next: ChatMsg[] = [...thread, { role: "user", content: qy }];
+    setThread(next);
+    runStream(next, activeCards);
   }
 
   const SPREAD_OPTIONS: { id: SpreadId; name: string; desc: string; count: number }[] = [
@@ -110,7 +150,7 @@ export function TarotClient() {
               key={m.key}
               onClick={() => {
                 setMode(m.key);
-                setReading("");
+                resetReading();
               }}
               className={cn(
                 "flex items-center gap-2 border px-4 py-2.5 text-xs uppercase tracking-widest transition",
@@ -289,7 +329,7 @@ export function TarotClient() {
 
           {allRevealed && (
             <div className="mt-8">
-              <Button onClick={interpret} loading={loading}>
+              <Button onClick={interpret} loading={initialLoading} disabled={chatting}>
                 {t.interpret} <Sparkles size={13} />
               </Button>
             </div>
@@ -327,7 +367,7 @@ export function TarotClient() {
           )}
 
           <div className="mt-8 flex gap-3">
-            <Button onClick={interpret} loading={loading} disabled={!allPicked}>
+            <Button onClick={interpret} loading={initialLoading} disabled={!allPicked || chatting}>
               {t.interpret} <Sparkles size={13} />
             </Button>
             <Button variant="ghost" onClick={() => setPicks(spread.positions.map(() => null))}>
@@ -337,14 +377,63 @@ export function TarotClient() {
         </div>
       )}
 
-      {/* ── READING ── */}
-      {(reading || loading) && (
+      {/* ── READING + FOLLOW-UP CHAT ── */}
+      {thread.length > 0 && (
         <Card glow className="mt-10 p-7 md:p-9">
-          <div className="mb-4 flex items-center gap-3">
-            <Sparkles size={14} className="text-[var(--gold)]" />
-            <p className="label-caps">{t.interpretation}</p>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Sparkles size={14} className="text-[var(--gold)]" />
+              <p className="label-caps">{t.interpretation}</p>
+            </div>
+            <button
+              type="button"
+              onClick={resetReading}
+              className="label-caps text-[10px] text-[var(--text-muted-color)] transition hover:text-[var(--gold-light)]"
+            >
+              {t.newReading}
+            </button>
           </div>
-          <AiProse text={reading} loading={loading} />
+
+          <div className="space-y-6">
+            {thread.map((m, i) =>
+              m.role === "assistant" ? (
+                <AiProse key={i} text={m.content} loading={chatting && i === thread.length - 1} />
+              ) : (
+                <div key={i} className="flex gap-3 border-l-2 border-[var(--gold)]/40 pl-4">
+                  <CornerDownRight size={15} className="mt-1 shrink-0 text-[var(--gold)]/60" />
+                  <p
+                    className="italic text-[var(--gold-light)]"
+                    style={{ fontFamily: "var(--font-display)", fontSize: "17px" }}
+                  >
+                    {m.content}
+                  </p>
+                </div>
+              ),
+            )}
+          </div>
+
+          {/* follow-up — keeps the same cards in context */}
+          <form
+            onSubmit={askFollowUp}
+            className="mt-7 flex items-center gap-3 border border-[var(--gold)]/15 bg-white/[0.025] px-5 py-3.5 transition focus-within:border-[var(--gold)]/50"
+          >
+            <input
+              value={followUp}
+              onChange={(e) => setFollowUp(e.target.value)}
+              placeholder={t.followUpPlaceholder}
+              disabled={chatting}
+              className="flex-1 bg-transparent text-[15px] italic text-[var(--text-primary-color)] outline-none placeholder:text-[var(--text-muted-color)] disabled:opacity-50"
+              style={{ fontFamily: "var(--font-display)" }}
+            />
+            <button
+              type="submit"
+              disabled={chatting || !followUp.trim()}
+              className="grid h-9 w-9 shrink-0 place-items-center bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold-dark)] text-[#0A0A0F] transition hover:opacity-90 disabled:opacity-40"
+              aria-label={t.followUpAria}
+            >
+              <Send size={14} />
+            </button>
+          </form>
         </Card>
       )}
     </>

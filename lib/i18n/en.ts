@@ -445,6 +445,9 @@ export const en = {
     position: "Position",
     clearSpread: "Clear",
     cardOf: "Card",
+    followUpPlaceholder: "Ask a follow-up about this reading…",
+    followUpAria: "Send follow-up",
+    newReading: "New reading",
     methodNote:
       "Behind every card: majors are archetypes; minors follow the number × suit method (an Ace plants a seed, a Five brings friction — in the suit's domain). Study the whole system in the Library and the Academy.",
   },

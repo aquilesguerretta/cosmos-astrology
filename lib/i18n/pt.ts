@@ -445,6 +445,9 @@ export const pt: Dict = {
     position: "Posição",
     clearSpread: "Limpar",
     cardOf: "Carta",
+    followUpPlaceholder: "Pergunte mais sobre esta leitura…",
+    followUpAria: "Enviar pergunta",
+    newReading: "Nova leitura",
     methodNote:
       "Por trás de cada carta: os maiores são arquétipos; os menores seguem o método número × naipe (um Ás planta a semente, um Cinco traz fricção — no domínio do naipe). Estude o sistema inteiro na Biblioteca e na Academia.",
   },
